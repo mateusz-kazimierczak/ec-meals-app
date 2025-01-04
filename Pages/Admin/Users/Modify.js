@@ -43,7 +43,10 @@ export default function ModifyUser({ navigation, route }) {
   }, []);
 
   const fetchUserData = async () => {
+
+    // check if user is being modified or a new user is being created
     if (route.params?.user_id || route.params?.token) {
+      // User is being modified, fetch user data from DB
       setLoading(true);
       const res = await cFetch.get(
         `${process.env.EXPO_PUBLIC_BACKEND_API}/api/users/single`,
@@ -64,6 +67,7 @@ export default function ModifyUser({ navigation, route }) {
         active: res.active,
         guest: res.guest,
         diet: res.diet,
+        birthday: res.birthday,
       });
       setLoading(false);
     }
@@ -210,6 +214,14 @@ export default function ModifyUser({ navigation, route }) {
               errors={errors}
             />
 
+            <CustomTextInput
+              control={control}
+              name={"birthday"}
+              placeholder={"Day/Month"}
+              label={"Date of birth (leave blank to hide)"}
+              errors={errors}
+            />
+
             {!(route.params?.user_id || route.params?.token) && email && (
               <CheckBoxInput
                 control={control}
@@ -274,6 +286,8 @@ export default function ModifyUser({ navigation, route }) {
                   defaultValue={"None"}
                   requestURL={`${process.env.EXPO_PUBLIC_BACKEND_API}/api/diets`}
                 />
+
+
 
                 <CheckBoxInput
                   control={control}

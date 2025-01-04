@@ -44,6 +44,7 @@ export default function HomeMeals({ navigation, route }) {
     setLoading(false);
 
     console.log("Meals today: ", typeof res.allMealsToday, res.allMealsToday);
+    console.log("Meals tomorrow: ", typeof res.tomorrowMeals, res.tomorrowMeals);
   };
 
   return (
