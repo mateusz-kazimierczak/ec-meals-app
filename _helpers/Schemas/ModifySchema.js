@@ -6,7 +6,7 @@ export default Joi.object({
   password: Joi.string().empty("").trim(),
   firstName: Joi.string().empty(""),
   lastName: Joi.string().empty(""),
-  birthday: Joi.string().trim().pattern(/^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])$/).optional(),
+  birthday: Joi.string().trim().pattern(/^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])$/).empty(""),
   email: Joi.string()
     .email({ tlds: { allow: false } })
     .empty(""),

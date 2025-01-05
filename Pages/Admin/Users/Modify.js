@@ -56,6 +56,8 @@ export default function ModifyUser({ navigation, route }) {
           token: route.params.token,
         }
       );
+
+      const birthdayString = res.birthdayDay == undefined ? "" : `${res.birthdayDay}/${res.birthdayMonth}`;
       reset({
         defaultUsername: false,
         username: res.username,
@@ -67,7 +69,7 @@ export default function ModifyUser({ navigation, route }) {
         active: res.active,
         guest: res.guest,
         diet: res.diet,
-        birthday: `${res.birthdayDay}/${res.birthdayMonth}`
+        birthday: birthdayString,
       });
       setLoading(false);
     }
