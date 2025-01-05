@@ -10,13 +10,15 @@ import { useFetch } from "../../_helpers/useFetch";
 import { set } from "react-hook-form";
 
 import Checkbox from "expo-checkbox";
-import { Toast } from "toastify-react-native";
+
+import platformAlert from "../../../_helpers/useAlert";
 
 export default function NotificationPreferences({ navigation, route }) {
   const cFetch = useFetch();
   const [loading, setLoading] = useState(false);
   const [emailPref, setEmailPref] = useState(1);
   const [persistMeals, setPersistMeals] = useState(false);
+  const [skipNotSignedUp, setSkipNotSignedUp] = useState(false);
   const [allowNextWeek, setAllowNextWeek] = useState(false);
   const [name, setName] = useState("");
   const [auth, setAuth] = useAtom(authAtom);
@@ -38,6 +40,7 @@ export default function NotificationPreferences({ navigation, route }) {
     setEmailPref(res.preferences.email);
     setPersistMeals(res.preferences.persistMeals);
     setAllowNextWeek(res.preferences.allowNextWeek);
+    setSkipNotSignedUp(res.preferences.skipNotSignedUp);
     setName(res.firstName);
     setLoading(false);
   };
@@ -51,6 +54,7 @@ export default function NotificationPreferences({ navigation, route }) {
         email: emailPref,
         persistMeals: persistMeals,
         allowNextWeek: allowNextWeek,
+        skipNotSignedUp: skipNotSignedUp,
       },
       {
         user_id: route.params.forUser,
@@ -58,7 +62,7 @@ export default function NotificationPreferences({ navigation, route }) {
     );
     setLoading(false);
     navigation.navigate(route.params.returnPaths[route.params.returnPaths.length - 1]);
-    Toast.success("Preferences saved");
+    platformAlert("Success", "Preferences saved");
 
     //setAuth((oldP) => ({ ...oldP, allowNextWeek: allowNextWeek }));
   };
@@ -124,7 +128,19 @@ export default function NotificationPreferences({ navigation, route }) {
                   onValueChange={() => setPersistMeals(!persistMeals)}
                   value={persistMeals}
                 />
+                
                 <Text style={styles.singleOptionTextLabel}>Persist Meals:</Text>
+              </View>
+
+              <View style={styles.singleOptionContainer}>
+                        
+                <Checkbox
+                  style={styles.checkbox}
+                  onValueChange={() => setSkipNotSignedUp(!skipNotSignedUp)}
+                  value={skipNotSignedUp}
+                />
+                
+                <Text style={styles.singleOptionTextLabel}>Do not include in "Not signed up" for meals:</Text>
               </View>
             </>
             
