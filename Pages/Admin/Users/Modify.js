@@ -67,7 +67,7 @@ export default function ModifyUser({ navigation, route }) {
         active: res.active,
         guest: res.guest,
         diet: res.diet,
-        birthday: res.birthday,
+        birthday: `${res.birthdayDay}/${res.birthdayMonth}`
       });
       setLoading(false);
     }

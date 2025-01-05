@@ -1,7 +1,7 @@
 import { View, Text, Button, StyleSheet, Dimensions } from "react-native";
-import Loader from "../../components/Loader/Loader";
+import Loader from "../../../components/Loader/Loader";
 import { useEffect, useState } from "react";
-import { useFetch } from "../../_helpers/useFetch";
+import { useFetch } from "../../../_helpers/useFetch";
 
 const screeenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;

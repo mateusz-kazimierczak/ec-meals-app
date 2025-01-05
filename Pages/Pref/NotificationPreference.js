@@ -11,7 +11,7 @@ import { set } from "react-hook-form";
 
 import Checkbox from "expo-checkbox";
 
-import platformAlert from "../../../_helpers/useAlert";
+import platformAlert from "../../_helpers/useAlert";
 
 export default function NotificationPreferences({ navigation, route }) {
   const cFetch = useFetch();

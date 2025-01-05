@@ -8,7 +8,8 @@ import {
   ScrollView,
 } from "react-native";
 
-import HomeMeals from "./HomeMeals";
+import HomeMeals from "./HomeWidgets/HomeMeals";
+import HomeBirthdays from "./HomeWidgets/Birthdays/HomeBirthdays";
 import HomeCurrentMeal from "./Admin/HomeCurrentMeal";
 
 import Container from "../../components/Container/Container";
@@ -25,6 +26,10 @@ export default function HomeScreen({ navigation, route }) {
       <Text style={styles.headTitle}>Welcome to Ernescliff!</Text>
       <HomeMeals navigation={navigation} route={route} />
     </Container>
+    <Container>
+      <HomeBirthdays />
+    </Container>
+    
   </ScrollView>
   );
 }
