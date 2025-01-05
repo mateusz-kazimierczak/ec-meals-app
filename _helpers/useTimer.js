@@ -3,22 +3,13 @@ import { set } from "react-hook-form";
 
 export default useTimer = ({ nextCall }) => {
   const [time, setTime] = useState(undefined);
-  const [warning, setWarning] = useState(false);
 
-  const updateTimer = (warning) => {
+  const updateTimer = () => {
     setTime((oldTime) => {
       if (oldTime == undefined) return;
       if (oldTime <= 0) {
-        if (warning) {
-          // If warning is true, set time to next call
-          setWarning(false);
-          nextCall();
+        nextCall();
           return undefined;
-        } else {
-          // If warning is false, set time to next call - 1 hour
-          setWarning(true);
-          return process.env.EXPO_PUBLIC_AFTER_WAIT_FOR_NEXT_CYCLE * 60 * 1000;
-        }
       }
 
       return oldTime - 1000;
@@ -26,32 +17,24 @@ export default useTimer = ({ nextCall }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => updateTimer(warning), 1000);
+    const interval = setInterval(() => updateTimer(), 1000);
 
     return () => clearInterval(interval);
-  }, [warning]);
+  }, []);
 
   const setTimeExternal = (time) => {
-    const untilWarning =
-      time -
-      Date.now() -
-      process.env.EXPO_PUBLIC_BEFORE_WAIT_FOR_NEXT_CYCLE * 1000;
 
-    if (untilWarning > 0) {
-      // If warning is not needed, set time normally
-      setWarning(false);
-      setTime(untilWarning);
-    } else {
-      // If warning has triggered, set time needed for next call
-      setWarning(false); // -- change
-      setTime(
-        untilWarning +
-          process.env.EXPO_PUBLIC_AFTER_WAIT_FOR_NEXT_CYCLE * 1000
-      );
-    }
+
+    console.log("Setting time to: ", new Date(time));
+
+    const untilUpdate =
+      time -
+      Date.now();
+
+      setTime(untilUpdate);
   };
 
-  return [constructTimerText(time), warning, setTimeExternal];
+  return [constructTimerText(time), setTimeExternal];
 };
 
 const constructTimerText = (time) => {

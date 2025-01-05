@@ -1,5 +1,3 @@
-// This file is a mess. If you are reading this, please fix it.
-
 import {
   StyleSheet,
   View,
@@ -9,14 +7,13 @@ import {
   ScrollView,
 } from "react-native";
 
-
 import React from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Table, TableWrapper, Row, Rows } from "react-native-reanimated-table";
 import { useEffect, useState } from "react";
-import Checkbox from "expo-checkbox";
+
 
 import Loader from "../../components/Loader/Loader";
 
@@ -25,105 +22,10 @@ import { useFetch } from "../../_helpers/useFetch";
 import MealHeader from "./MealHeader";
 import useTimer from "../../_helpers/useTimer";
 
-import { useAtom } from "jotai";
-import { authAtom } from "../../_helpers/Atoms";
+import { MealTypes, DaysOfTheWeek, screeenWidth } from "./common";
 
-const screeenWidth = Dimensions.get("window").width;
+import DayCheckbox from "./DayCheckbox";
 
-const screenHeight = Dimensions.get("window").height;
-
-const constructWarningMessage = (time) => {
-  const min = `${Math.floor((time / (1000 * 60 * 60)) % 24)}`.padStart(2, 0);
-  const sec = `${Math.floor((time / 1000 / 60) % 60)}`.padStart(2, 0);
-
-  return `Come back in ${min}:${sec}`;
-};
-
-const DaysOfTheWeek = [
-  "Meals",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-const MealTypes =
-  screeenWidth > 500
-    ? ["Breakfast", "Lunch", "Supper", "P1", "P2", "PS", "No Meals"]
-    : ["B", "L", "S", "P1", "P2", "PS", "X"];
-
-const DayCheckbox = ({
-  data,
-  setData,
-  indexDay,
-  indexType,
-  setUpdateState,
-  disabledDay,
-}) => {
-  let isDisabled;
-  if (indexType < 3 || indexType == MealTypes.length - 1) {
-    isDisabled = indexDay == disabledDay;
-  }
-  if (indexType >= 3 && !isDisabled) {
-    isDisabled = indexDay == (disabledDay + 1) % 7;
-  }
-  
-  const [auth, setAuth] = useAtom(authAtom);
-  const toggleValue = () => {
-    console.log("Auth: ", auth);
-    setUpdateState(false);
-    setData((prev) => {
-      const newData = [...prev];
-
-      if (indexType == MealTypes.length - 1) {
-        // If No meals is selected, unselect everything else
-        newData[indexDay] = newData[indexDay].map(() => false);
-        newData[indexDay][indexType] = true;
-        return newData;
-      } else {
-        // Otherwise just toggle the value
-        newData[indexDay][indexType] = !newData[indexDay][indexType];
-        newData[indexDay][MealTypes.length - 1] = false;
-        return newData;
-      }
-    });
-  };
-
-  getBackgroundColor = () => {
-    if (isDisabled) {
-      return "red";
-    } else if (indexType == MealTypes.length - 1) {
-      return "#ffd063";
-    } else {
-      return undefined;
-    }
-  };
-  return (
-    <View
-      style={{
-        flex: 1,
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 5,
-        backgroundColor: getBackgroundColor(),
-      }}
-    >
-      <Checkbox
-        style={
-          screeenWidth > 500 ? styles.checkboxDesktop : styles.checkboxMobile
-        }
-        disabled={isDisabled && !auth?.preferences?.allowNextWeek}
-        value={data[indexDay][indexType]}
-        onValueChange={toggleValue}
-        color={"#3b78a1"}
-      />
-    </View>
-  );
-};
 
 export default function Week({ user_id }) {
   const [mealData, setMealData] = useState(
@@ -136,7 +38,7 @@ export default function Week({ user_id }) {
   const [updateState, setUpdateState] = useState(false);
   const cFetch = useFetch();
 
-  const [timerText, warning, setTimer] = useTimer({
+  const [timerText, setTimer] = useTimer({
     nextCall: () => fetchMeals(),
   });
 
@@ -202,7 +104,7 @@ export default function Week({ user_id }) {
       <Loader
         loading={loading}
         warningIconName={"cloud-upload-outline"}
-        warning={warning}
+        warning={false}
         warningMessage={timerText}
       >
         <MealHeader
@@ -232,6 +134,9 @@ export default function Week({ user_id }) {
   );
 }
 
+
+// Styling --- 
+
 const TEXT_LENGTH = 100;
 const TEXT_HEIGHT = 30;
 const OFFSET = TEXT_LENGTH / 2 - TEXT_HEIGHT / 2;
@@ -256,12 +161,4 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
 
-  checkboxDesktop: {
-    height: 40,
-    width: 40,
-  },
-  checkboxMobile: {
-    height: "80%",
-    width: "80%",
-  },
 });
