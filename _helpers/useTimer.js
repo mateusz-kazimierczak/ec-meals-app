@@ -7,7 +7,7 @@ export default useTimer = ({ nextCall }) => {
   const updateTimer = () => {
     setTime((oldTime) => {
       if (oldTime == undefined) return;
-      if (oldTime <= 0) {
+      if (oldTime <= 20 * 1000) { // wait an additional 20 seconds before calling the next function
         nextCall();
           return undefined;
       }
@@ -38,6 +38,7 @@ export default useTimer = ({ nextCall }) => {
 };
 
 const constructTimerText = (time) => {
+  if (time == undefined || time < 0) return "00:00:00";
   const nextUpdateTime = [
     Math.floor((time / (1000 * 60 * 60)) % 24),
     Math.floor((time / 1000 / 60) % 60),
