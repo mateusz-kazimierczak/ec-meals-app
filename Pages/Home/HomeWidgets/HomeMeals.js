@@ -77,7 +77,9 @@ export default function HomeMeals({ navigation, route }) {
           </View>
         </View>
       </Loader>
-      <Button title="Mark meals" onPress={() => navigation.navigate("Meals")} />
+      <View >
+        <Button title="Mark meals" onPress={() => navigation.navigate("Meals")} />
+      </View>
     </View>
   );
 }
@@ -104,6 +106,8 @@ const styles = StyleSheet.create({
   },
   outerContainer: {
     padding: 30,
+    flex: 1,
+    justifyContent: "center",
   },
 });
 

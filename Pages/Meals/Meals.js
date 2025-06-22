@@ -3,9 +3,14 @@ import Container from "../../components/Container/Container";
 import DeepNavLink from "../../components/header/DeepNavLinks/DeepNavLinks";
 import Week from "./Week";
 
+import { useState } from "react";
+
 export default function Meals({ children, style, route, navigation }) {
   user_id = route.params?.user_id;
   returnPaths = route.params?.returnPaths;
+
+  const [weekSavedState, setWeekSavedState] = useState(0); // 0 - saved, 1 - loading, 2 - not saved
+
   return (
     <>
       {returnPaths && (
@@ -15,8 +20,8 @@ export default function Meals({ children, style, route, navigation }) {
           routes={returnPaths}
         />
       )}
-      <Container wide={true} maxHeight={false}>
-        <Week user_id={user_id} />
+      <Container wide={true} maxHeight={false} state={weekSavedState} >
+        <Week user_id={user_id} setSaveState={setWeekSavedState} />
       </Container>
     </>
   );

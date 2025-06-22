@@ -3,13 +3,15 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Dashbaord from "./Preferences";
 import EditUser from "../Admin/Users/Modify";
 import NotificationPreferences from "./NotificationPreference";
+import Logs from "../Admin/Logs/Logs";
+import GeneralPreferences from "./GeneralPreferences";
 
 const Stack = createStackNavigator();
 
 export default function AdminRouter({ navigation }) {
   return (
     <Stack.Navigator
-      initialRouteName="Dashboard"
+      initialRouteName="Preferences Dashboard"
       screenOptions={{
         headerShown: false,
         cardStyle: { flex: 1 },
@@ -21,6 +23,8 @@ export default function AdminRouter({ navigation }) {
         name="Notification Preferences"
         component={NotificationPreferences}
       />
+      <Stack.Screen name="General Preferences" component={GeneralPreferences} />
+      <Stack.Screen name="Logs" component={Logs} />
     </Stack.Navigator>
   );
 }

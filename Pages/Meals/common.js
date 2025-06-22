@@ -19,9 +19,24 @@ export const DaysOfTheWeek = [
   "Sunday",
 ];
 
+export const ShortMealTypes = ["B", "L", "S", "P1", "P2", "PS", "X"]
+
+
 export const MealTypes =
   screeenWidth > 500
     ? ["Breakfast", "Lunch", "Supper", "P1", "P2", "PS", "No Meals"]
-    : ["B", "L", "S", "P1", "P2", "PS", "X"];
+    : ShortMealTypes;
 
     
+export const SavedStatusColor = (state) => {
+  switch (state) {
+    case 0:
+      return "green";
+    case 1:
+      return "lightblue";
+    case 2:
+      return "red";
+    default:
+      return "#ababab";
+  }
+}

@@ -7,12 +7,11 @@ import {
   ScrollView,
 } from "react-native";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Table, TableWrapper, Row, Rows } from "react-native-reanimated-table";
-import { useEffect, useState } from "react";
 
 
 import Loader from "../../components/Loader/Loader";
@@ -22,12 +21,12 @@ import { useFetch } from "../../_helpers/useFetch";
 import MealHeader from "./MealHeader";
 import useTimer from "../../_helpers/useTimer";
 
-import { MealTypes, DaysOfTheWeek, screeenWidth } from "./common";
+import { MealTypes, DaysOfTheWeek, screeenWidth, SavedStatusColor } from "./common";
 
 import DayCheckbox from "./DayCheckbox";
 
 
-export default function Week({ user_id }) {
+export default function Week({ user_id, setSaveState }) {
   const [mealData, setMealData] = useState(
     DaysOfTheWeek.slice(1).map((day) => MealTypes.map((meal) => false))
   );
@@ -36,11 +35,53 @@ export default function Week({ user_id }) {
 
   const [loading, setLoading] = useState(true);
   const [updateState, setUpdateState] = useState(false);
+
+  useEffect(() => {
+    console.log("updateState: ", updateState);
+    console.log("loading: ", loading);
+    if (updateState) {
+      setSaveState(0);
+    }
+    else if (loading) {
+      setSaveState(1);
+    } else {
+      setSaveState(2);
+    }  }
+  , [loading, updateState]);
+
+  
   const cFetch = useFetch();
 
   const [timerText, setTimer] = useTimer({
     nextCall: () => fetchMeals(),
   });
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+
+      // use AppState on react native
+
+      if (updateState) return;
+
+      event.preventDefault();
+      event.returnValue = "";
+      cFetch
+      .post(
+        `${process.env.EXPO_PUBLIC_BACKEND_API}/api/meals`,
+        { meals: mealData },
+        { forUser: user_id }
+      )
+      .catch((err) =>
+        console.log("Error while fetching data from server: ", err)
+      );
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [mealData, user_id]);
 
   const fetchMeals = async () => {
     setLoading(true);
@@ -125,7 +166,7 @@ export default function Week({ user_id }) {
               style={styles.commonRow}
             />
           </Table>
-          <View style={{ margin: 20 }}>
+          <View style={{ margin: screeenWidth > 500 ? 20 : 5 }}>
             <Button title="Submit" onPress={SaveData} />
           </View>
         </View>

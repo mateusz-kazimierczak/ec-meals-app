@@ -5,6 +5,7 @@ import UsersRouter from "./Users/UsersRouter";
 import Meals from "./Meals/Meals";
 import IdMeals from "../Meals/Meals";
 import Diets from "./Diets/Diets";
+import Logs from "./Logs/Logs";
 import NotificationPreferences from "../Pref/NotificationPreference";
 
 const Stack = createStackNavigator();
@@ -23,6 +24,7 @@ export default function AdminRouter({ navigation }) {
       <Stack.Screen name="AllMeals" component={Meals} />
       <Stack.Screen name="IdMeals" component={IdMeals} />
       <Stack.Screen name="Diets" component={Diets} />
+      <Stack.Screen name="Logs" component={Logs} returnPaths={["Preferences"]} />
       <Stack.Screen
         name="Admin Notification Preferences"
         component={NotificationPreferences}

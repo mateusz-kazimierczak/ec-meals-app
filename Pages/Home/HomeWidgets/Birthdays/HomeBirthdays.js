@@ -59,7 +59,8 @@ export default function HomeBirthdays() {
                 </View>
                 <View>
                   {(Array.isArray(birthdays) && birthdays && birthdays.length > 0) ?
-                    birthdays.map(
+                    birthdays
+                    .map(
                       (birthday) =>
                         birthday && <SingleBirthday key={birthday.id} birthday={birthday} />
                     ) :
