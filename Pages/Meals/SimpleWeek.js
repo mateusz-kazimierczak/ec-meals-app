@@ -53,7 +53,7 @@ export default function Week({ displayMeals = defaultMeals }) {
   // Column Headers: Empty top-left cell, then Day initials
   const columnHeaderData = [
     "", // For the corner above Meal Type row headers
-    ...DaysOfTheWeek.slice(1), // Use full names of the days
+    ...DaysOfTheWeek.slice(1).map(day => day.charAt(0)) // "M", "T", "W", ..., "S"
   ];
 
   // TableData: Rows are MealTypes. For each MealType, first cell is MealType name,

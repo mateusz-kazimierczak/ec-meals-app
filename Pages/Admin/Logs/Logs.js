@@ -74,7 +74,7 @@ export default function Diets({ navigation, route }) {
       .get(
         `${process.env.EXPO_PUBLIC_BACKEND_API}/api/logs`,
         null,
-        { userId: user_id ? undefined : value, week: selectedWeek } // Send forUser as undefined if user_id is true
+        { userId: user_id, forUser: user_id ? undefined : value, week: selectedWeek } // Send forUser as undefined if user_id is true
       )
       .catch((err) =>
         console.log("Error while fetching data from server: ", err)

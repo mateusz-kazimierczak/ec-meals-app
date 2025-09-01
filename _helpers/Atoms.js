@@ -12,4 +12,5 @@ export const authAtom = atomWithStorage("auth", {
   token: undefined,
   username: undefined,
   role: undefined,
+  preferences: undefined
 }, storage);

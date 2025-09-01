@@ -11,20 +11,12 @@ export default function Preferences({ navigation, route }) {
 
   const preferencesOptions = [
     {
-      name: "Log Out",
-      icon: "log-out-outline",
-      action: () => {
-        setAuth({});
-        navigation.navigate("Home");
-      },
-    },
-    {
-      name: "Edit Account",
-      icon: "create-outline",
+      name: "General Preferences",
+      icon: "settings-outline",
       action: () =>
-        navigation.navigate("Edit Account", {
+        navigation.navigate("General Preferences", {
           returnPaths: ["Preferences Dashboard"],
-          token: auth.token,
+          forUser: auth.user_id,
         }),
     },
     {
@@ -45,77 +37,83 @@ export default function Preferences({ navigation, route }) {
         }),
     },
     {
-      name: "General Preferences",
-      icon: "settings-outline",
+      name: "Edit Account",
+      icon: "create-outline",
       action: () =>
-        navigation.navigate("General Preferences", {
+        navigation.navigate("Edit Account", {
           returnPaths: ["Preferences Dashboard"],
-          forUser: auth.user_id,
+          token: auth.token,
         }),
-    }
+    },
+    {
+      name: "Log Out",
+      icon: "log-out-outline",
+      action: () => {
+        setAuth({});
+        navigation.navigate("Home");
+      },
+    },
   ];
 
   return (
     <Container>
-      <View style={styles.ScreensContainer}>
+      <View style={styles.preferencesContainer}>
         {preferencesOptions.map((option) => (
           <TouchableOpacity
             key={option.name}
-            style={styles.SingleScreenContainer}
+            style={styles.linkContainer}
             onPress={option.action}
           >
-            <Icons name={option.icon} size={50} color={"#3b78a1"} />
-            <Text style={styles.ScreenTextContainer}>{option.name}</Text>
+            <Icons name={option.icon} size={24} color={"#3b78a1"} style={styles.icon} />
+            <Text style={styles.linkText}>{option.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      <View style={styles.bottomInfoContainerOuter}>
-        <View style={styles.bottomInfoContainerInner}>
-          <Text>App by </Text>
+      <View style={styles.bottomInfoContainer}>
+        <Text style={styles.bottomText}>
+          App by{" "}
           <Text
             onPress={() => Linking.openURL(process.env.EXPO_PUBLIC_DEV_URL)}
-            style={{ textDecorationLine: "underline", color: "#007AFF" }}
+            style={styles.link}
           >
             Mateusz Kazimierczak
           </Text>
-        </View>
+        </Text>
       </View>
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  ScreensContainer: {
+  preferencesContainer: {
+    marginVertical: 20,
+    paddingHorizontal: 20,
+  },
+  linkContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
     alignItems: "center",
-    flexWrap: "wrap",
-    margin: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
-  SingleScreenContainer: {
-    justifyContent: "center",
+  icon: {
+    marginRight: 10,
+  },
+  linkText: {
+    fontSize: 18,
+    color: "#007AFF",
+    textDecorationLine: "none",
+  },
+  bottomInfoContainer: {
+    marginTop: 20,
     alignItems: "center",
-    margin: 10,
-    padding: 20,
-    borderWidth: 2,
-    borderRadius: 15,
-    borderColor: "#3b78a1",
-    backgroundColor: "#f9f9f9",
   },
-  ScreenTextContainer: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 10,
+  bottomText: {
+    fontSize: 14,
     color: "#333",
   },
-  bottomInfoContainerOuter: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignContent: "flex-end",
-    marginTop: 20,
-  },
-  bottomInfoContainerInner: {
-    flexDirection: "row",
+  link: {
+    textDecorationLine: "underline",
+    color: "#007AFF",
   },
 });

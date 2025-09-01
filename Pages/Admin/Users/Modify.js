@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 
 import Container from "../../../components/Container/Container";
@@ -309,32 +310,46 @@ export default function ModifyUser({ navigation, route }) {
             )}
 
             <View style={styles.buttonContainer}>
-              <Button
+              <TouchableOpacity
                 onPress={handleSubmit(onSubmit)}
-                style={styles.button}
-                title={
-                  route.params?.user_id || route.params?.token
+                style={[styles.button, styles.primaryButton]}
+              >
+                <Text style={styles.buttonText}>
+                  {route.params?.user_id || route.params?.token
                     ? "Update User"
-                    : "Add User"
-                }
-                color="#3b78a1"
-              />
+                    : "Add User"}
+                </Text>
+              </TouchableOpacity>
               {auth.role === "admin" && route.params?.user_id && (
-               <>
-                <Button
-                  onPress={confirmRemoveUser}
-                  style={styles.button}
-                  title={"Remove User"}
-                  color="red"
-                />
-                <Button
-                  onPress={() =>
-                    navigation.navigate("Admin Notification Preferences", { returnPaths: ["Dashbaord", "Users List"], forUser: route.params.user_id })
-                  }
-                  style={styles.button}
-                  title={"Set Preferences"}
-                  color="#3b78a1"
-                />
+                <>
+                  <TouchableOpacity
+                    onPress={confirmRemoveUser}
+                    style={[styles.button, styles.dangerButton]}
+                  >
+                    <Text style={styles.buttonText}>Remove User</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("Admin Notification Preferences", {
+                        returnPaths: ["Dashbaord", "Users List"],
+                        forUser: route.params.user_id,
+                      })
+                    }
+                    style={[styles.button, styles.secondaryButton]}
+                  >
+                    <Text style={styles.buttonText}>Set Notification Preferences</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("Admin General Preferences", {
+                        returnPaths: ["Dashbaord", "Users List"],
+                        forUser: route.params.user_id,
+                      })
+                    }
+                    style={[styles.button, styles.secondaryButton]}
+                  >
+                    <Text style={styles.buttonText}>Set General Preferences</Text>
+                  </TouchableOpacity>
                 </>
               )}
             </View>
@@ -376,8 +391,30 @@ const styles = StyleSheet.create({
   buttonContainer: {
     margin: 10,
     marginBottom: 50,
-    flex: 1,
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-around",
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 5,
+    minWidth: "40%",
+  },
+  primaryButton: {
+    backgroundColor: "#007AFF",
+  },
+  secondaryButton: {
+    backgroundColor: "#34C759",
+  },
+  dangerButton: {
+    backgroundColor: "#FF3B30",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

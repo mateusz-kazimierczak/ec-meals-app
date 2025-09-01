@@ -7,6 +7,7 @@ import IdMeals from "../Meals/Meals";
 import Diets from "./Diets/Diets";
 import Logs from "./Logs/Logs";
 import NotificationPreferences from "../Pref/NotificationPreference";
+import GeneralPreferences from "../Pref/GeneralPreferences";
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,10 @@ export default function AdminRouter({ navigation }) {
       <Stack.Screen
         name="Admin Notification Preferences"
         component={NotificationPreferences}
+      />
+      <Stack.Screen
+        name="Admin General Preferences"
+        component={GeneralPreferences}
       />
     </Stack.Navigator>
   );
