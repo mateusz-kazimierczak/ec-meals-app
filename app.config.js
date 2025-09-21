@@ -1,6 +1,6 @@
 export default {
   "expo": {
-    "name": "ec",
+    "name": "EC Meals",
     "slug": "ec",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -35,7 +35,12 @@ export default {
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.ec",
-      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON,
+      "softwareKeyboardLayoutMode": "pan",
+      "navigationBar": {
+        "visible": true,
+        "style": "light"
+      }
     },
     "web": {
       "bundler": "metro",

@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,36 +29,44 @@ import Icons from "@expo/vector-icons/Ionicons";
 import ToastManager from "toastify-react-native";
 
 export default function App() {
-  
-
   return (
-    <Suspense fallback={<Text>Loading...</Text>} >
-      <AppEntry />
-    </Suspense>
+    <SafeAreaProvider>
+      <Suspense fallback={<Text>Loading...</Text>} >
+        <AppEntry />
+      </Suspense>
+    </SafeAreaProvider>
   );
 }
 
 function AppEntry () {
   const [auth, setAuth] = useAtom(authAtom);
   return (
-<KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <View style={styles.container}>
-        <ToastManager />
-        <NavigationContainer>
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              cardStyle: { flex: 1 },
-              tabBarIcon: ({ focused, color, size }) => {
-                return (
-                  <Icons
-                    name={iconTitle(route.name)}
-                    size={size}
-                    color={color}
-                  />
-                );
-              },
-            })}
-          >
+    <View style={styles.container}>
+          <ToastManager />
+          <NavigationContainer>
+            <Tab.Navigator
+              screenOptions={({ route }) => ({
+                cardStyle: { flex: 1 },
+                tabBarIcon: ({ focused, color, size }) => {
+                  return (
+                    <Icons
+                      name={iconTitle(route.name)}
+                      size={size}
+                      color={color}
+                    />
+                  );
+                },
+                // Add proper safe area handling
+                tabBarStyle: {
+                  paddingBottom: 0, // Remove extra padding
+                  backgroundColor: '#fff',
+                },
+                headerStyle: {
+                  backgroundColor: '#fff', // White header background to match tabs
+                },
+                headerTintColor: '#3b78a1', // Blue text on white background
+              })}
+            >
             {navTabs(auth?.role).map((tab) => (
               <Tab.Screen
                 name={tab.name}
@@ -72,7 +81,6 @@ function AppEntry () {
           </Tab.Navigator>
         </NavigationContainer>
       </View>
-    </KeyboardAvoidingView>
   )
 }
 
@@ -80,7 +88,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#3b78a1",
+    flex: 1,
   },
   main: {},
 });

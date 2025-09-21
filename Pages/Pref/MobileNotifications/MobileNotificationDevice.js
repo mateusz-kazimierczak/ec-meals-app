@@ -83,13 +83,22 @@ export default function MobileNotificationRegister({ device, setDevice }) {
           Registered Device: <Text style={styles.deviceName}>{device.name}</Text>
         </Text>
       )}
-      <Text style={styles.label}>Register this device for push notifications:</Text>
+      {Platform.OS === 'web' && (
+        <Text style={styles.label}>
+          Push notifications are not supported on web. Please use a physical device.
+        </Text>
+      )}
+      {Platform.OS !== 'web' && (
+        <>
+        <Text style={styles.label}>Register this device for push notifications:</Text>
       <Button
         title={registering ? "Registering..." : device && device.token ? "Overwrite Registration" : "Register Device"}
         onPress={handleRegister}
         disabled={registering}
       />
-    </View>
+        </>
+      )}
+      </View>
   );
 }
 

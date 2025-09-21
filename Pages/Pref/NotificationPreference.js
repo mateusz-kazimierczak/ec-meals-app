@@ -14,7 +14,7 @@ import GroupCheckboxTable from "../../components/Forms/GroupCheckboxTable"; // I
 
 import platformAlert from "../../_helpers/useAlert";
 
-import Example from "./MobileNotifications/Example";
+import MobileNotificationRegister from "./MobileNotifications/MobileNotificationDevice";
 
 const generateNotificationSchema = (userSchema) => ({
   meals: {
@@ -182,7 +182,7 @@ export default function NotificationPreferences({ navigation, route }) {
 
             {
               notificationTypes.push &&
-              <Example device={device} setDevice={setDevice} />
+              <MobileNotificationRegister device={device} setDevice={setDevice} />
             }
 
 

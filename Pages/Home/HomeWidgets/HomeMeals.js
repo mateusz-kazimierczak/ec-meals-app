@@ -69,9 +69,11 @@ export default function HomeMeals({ navigation, route }) {
               mealsToday?.map(
                 (meal, index) =>
                   meal && (
-                    <Text style={styles.singleMeal} key={index}>
-                      {MealCategories[index]}
-                    </Text>
+                    <View style={styles.mealContainer} key={index}>
+                      <Text style={[styles.singleMeal, { borderBottomColor: MealHighlight[index] }]}>
+                        {MealCategories[index]}
+                      </Text>
+                    </View>
                   )
               )}
           </View>
@@ -81,9 +83,11 @@ export default function HomeMeals({ navigation, route }) {
               mealsTomorrow?.map(
                 (meal, index) =>
                   meal && (
-                    <Text style={styles.singleMeal} key={index}>
-                      {MealCategories[index]}
-                    </Text>
+                    <View style={styles.mealContainer} key={index}>
+                      <Text style={[styles.singleMeal, { borderBottomColor: MealHighlight[index] }]}>
+                        {MealCategories[index]}
+                      </Text>
+                    </View>
                   )
               )}
           </View>
@@ -111,10 +115,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   singleMeal: {
-    width: "100%",
     textAlign: "center",
     fontSize: 20,
-    padding: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1.5,
+    alignSelf: "center",
+  },
+  mealContainer: {
+    alignItems: "center",
+    marginVertical: 3,
   },
   outerContainer: {
     padding: 30,
@@ -133,3 +143,14 @@ const MealCategories = [
   "No Meals",
   "Unmarked",
 ];
+
+const MealHighlight = [
+  "green",
+  "green",
+  "green",
+  "blue",
+  "blue",
+  "blue",
+  "orange",
+  "red",
+]
