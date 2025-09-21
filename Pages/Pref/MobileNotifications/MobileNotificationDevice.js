@@ -20,11 +20,12 @@ async function handleRegistrationError(errorMessage) {
 
 async function registerForPushNotificationsAsync() {
   if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
+    await Notifications.setNotificationChannelAsync('alerts', {
+      name: 'Alerts',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#FF231F7C',
+      sound: 'bell.wav'
     });
   }
 
