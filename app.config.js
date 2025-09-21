@@ -62,7 +62,17 @@ export default {
         }
       ],
       "react-native-background-fetch",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "sounds": [
+            "./assets/bell.wav",
+          ]
+        }
+      ]
     ],
     "extra": {
       "router": {
