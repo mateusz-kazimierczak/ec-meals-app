@@ -35,7 +35,9 @@ export default function HomeCurrentMeal({ navigation, route }) {
     }
 
     useFocusEffect(
-        React.useCallback(fetchCurrentMeal, [])
+        React.useCallback(() => {
+            fetchCurrentMeal();
+        }, [])
     );
 
     return (

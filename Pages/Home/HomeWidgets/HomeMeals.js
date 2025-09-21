@@ -35,16 +35,28 @@ export default function HomeMeals({ navigation, route }) {
     setLoading(true);
     const res = await cFetch
       .get(`${process.env.EXPO_PUBLIC_BACKEND_API}/api/home/meals`)
-      .catch((err) =>
-        console.log("Error while fetching data from server: ", err)
-      );
+      .catch((err) => {
+        console.log("Error while fetching data from server: ", err);
+        return null; // Return null explicitly when there's an error
+      });
 
-    setMealsToday(res.allMealsToday);
-    setMealsTomorrow(res.tomorrowMeals);
+    // Check if res exists and has the expected properties
+    if (res && res.allMealsToday !== undefined) {
+      setMealsToday(res.allMealsToday);
+    } else {
+      setMealsToday(null);
+    }
+    
+    if (res && res.tomorrowMeals !== undefined) {
+      setMealsTomorrow(res.tomorrowMeals);
+    } else {
+      setMealsTomorrow(null);
+    }
+    
     setLoading(false);
 
-    console.log("Meals today: ", typeof res.allMealsToday, res.allMealsToday);
-    console.log("Meals tomorrow: ", typeof res.tomorrowMeals, res.tomorrowMeals);
+    console.log("Meals today: ", typeof res?.allMealsToday, res?.allMealsToday);
+    console.log("Meals tomorrow: ", typeof res?.tomorrowMeals, res?.tomorrowMeals);
   };
 
   return (

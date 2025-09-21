@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { set } from "react-hook-form";
 
-export default useTimer = ({ nextCall }) => {
+const useTimer = ({ nextCall }) => {
   const [time, setTime] = useState(undefined);
 
   const updateTimer = () => {
@@ -53,3 +53,5 @@ const constructTimerText = (time) => {
     "0"
   )}:${`${nextUpdateTime[2]}`.padStart(2, "0")}`;
 };
+
+export default useTimer;

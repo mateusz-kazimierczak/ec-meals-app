@@ -6,6 +6,8 @@ import {
   Button,
   ScrollView,
 } from "react-native";
+import { Platform } from 'react-native';
+
 
 import React, { useEffect, useState } from "react";
 
@@ -76,10 +78,16 @@ export default function Week({ user_id, setSaveState }) {
       );
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    // If the device is web, setup beforeunload event listener
+    if (Platform.OS === 'web') {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      if (Platform.OS === 'web') {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      }
+      
     };
   }, [mealData, user_id]);
 
@@ -90,17 +98,30 @@ export default function Week({ user_id, setSaveState }) {
       .get(`${process.env.EXPO_PUBLIC_BACKEND_API}/api/meals`, null, {
         forUser: user_id,
       })
-      .catch((err) =>
-        console.log("Error while fetching data from server: ", err)
-      );
+      .catch((err) => {
+        console.log("Error while fetching data from server: ", err);
+        return null; // Return null explicitly when there's an error
+      });
       
-
-    setMealData(res.meals);
-    setTimer(res.updateTime);
+    // Check if res exists and has the expected properties
+    if (res && res.meals !== undefined) {
+      setMealData(res.meals);
+    }
+    
+    if (res && res.updateTime !== undefined) {
+      setTimer(res.updateTime);
+    }
+    
+    if (res && res.disabledDay !== undefined) {
+      setDisabledDay(user_id ? undefined : res.disabledDay);
+    }
+    
+    if (res && res.firstName !== undefined) {
+      setFirstName(res.firstName);
+    }
+    
     setUpdateState(true);
     setLoading(false);
-    setDisabledDay(user_id ? undefined : res.disabledDay);
-    setFirstName(res.firstName);
   };
 
   const TableData = MealTypes.map((day, indexType) =>

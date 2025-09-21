@@ -41,14 +41,21 @@ export default function HomeBirthdays() {
       setLoading(true);
       const res = await cFetch
         .get(`${process.env.EXPO_PUBLIC_BACKEND_API}/api/home/birthdays`)
-        .catch((err) =>
-          console.log("Error while fetching data from server: ", err)
-        );
+        .catch((err) => {
+          console.log("Error while fetching data from server: ", err);
+          return null; // Return null explicitly when there's an error
+        });
   
         console.log("Birthdays: ", res);
 
       setLoading(false);
-      setBirthdays(res.birthdayDisplay);
+      
+      // Check if res exists and has the expected property
+      if (res && res.birthdayDisplay !== undefined) {
+        setBirthdays(res.birthdayDisplay);
+      } else {
+        setBirthdays(null);
+      }
     };
     return (
         <View style={styles.outerContainer}>

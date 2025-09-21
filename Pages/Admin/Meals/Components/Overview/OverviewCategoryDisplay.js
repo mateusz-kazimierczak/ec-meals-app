@@ -41,7 +41,7 @@ const getNSignedUp = (day) => {
 const generateDietCounters = (mealData) => {
   if (mealData.length === 0) return {};
 
-  diets = { Normal: 0 };
+  const diets = { Normal: 0 };
 
   mealData.forEach((user) => {
     if (user.diet) {

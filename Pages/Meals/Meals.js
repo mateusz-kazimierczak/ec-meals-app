@@ -6,8 +6,8 @@ import Week from "./Week";
 import { useState } from "react";
 
 export default function Meals({ children, style, route, navigation }) {
-  user_id = route.params?.user_id;
-  returnPaths = route.params?.returnPaths;
+  const user_id = route.params?.user_id;
+  const returnPaths = route.params?.returnPaths;
 
   const [weekSavedState, setWeekSavedState] = useState(0); // 0 - saved, 1 - loading, 2 - not saved
 

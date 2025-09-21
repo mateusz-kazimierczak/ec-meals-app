@@ -27,7 +27,7 @@ export default function DayCheckbox({
     if (indexType < 3 || indexType == MealTypes.length - 1) {
       isDisabled = indexDay == disabledDay;
     }
-    if (indexType >= 3 && !isDisabled) {
+    if ((indexType >= 3 && indexType != 6) && !isDisabled) {
       isDisabled = indexDay == (disabledDay + 1) % 7;
     }
     
@@ -51,8 +51,8 @@ export default function DayCheckbox({
         }
       });
     };
-  
-    getBackgroundColor = () => {
+
+  const getBackgroundColor = () => {
       if (isDisabled) {
         return "red";
       } else if (indexType == MealTypes.length - 1) {
@@ -83,8 +83,7 @@ export default function DayCheckbox({
         />
       </View>
     );
-  };
-
+  }
 
   const styles = StyleSheet.create({
     checkboxDesktop: {

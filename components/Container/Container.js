@@ -13,7 +13,8 @@ export default function Container({
   state
 }) {
 
-  borderWidth = 5;
+  let borderWidth = 5;
+  let stateColor;
 
   switch (state) {
     case 0:

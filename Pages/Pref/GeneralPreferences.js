@@ -13,6 +13,7 @@ export default function GeneralPreferences({ navigation, route }) {
   const [auth, setAuth] = useAtom(authAtom);
   const [loading, setLoading] = useState(false);
   const [allowNextWeek, setAllowNextWeek] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(false);
   const [persistMeals, setPersistMeals] = useState(false);
   const [skipNotSignedUp, setSkipNotSignedUp] = useState(false);
   const [name, setName] = useState("");
@@ -32,6 +33,7 @@ export default function GeneralPreferences({ navigation, route }) {
     );
     setAllowNextWeek(res.preferences.allowNextWeek);
     setPersistMeals(res.preferences.persistMeals);
+    setEmailNotifications(res.preferences.email == 1 ? true : false);
     setSkipNotSignedUp(res.preferences.skipNotSignedUp);
     setName(res.firstName);
     setLoading(false);
@@ -45,6 +47,7 @@ export default function GeneralPreferences({ navigation, route }) {
         allowNextWeek,
         persistMeals,
         skipNotSignedUp,
+        email: emailNotifications ? 1 : 0,
       },
       {
         user_id: route.params.forUser,
@@ -72,6 +75,14 @@ export default function GeneralPreferences({ navigation, route }) {
               value={allowNextWeek}
             />
             <Text style={styles.singleOptionTextLabel}>Allow mark next week</Text>
+          </View>
+          <View style={styles.singleOptionContainer}>
+            <Checkbox
+              style={styles.checkbox}
+              onValueChange={() => setEmailNotifications(!emailNotifications)}
+              value={emailNotifications}
+            />
+            <Text style={styles.singleOptionTextLabel}>Email (old notification system)</Text>
           </View>
           {(route.params.forUser || auth.role === "admin") && !loading && (
             <>

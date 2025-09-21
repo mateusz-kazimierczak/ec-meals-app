@@ -1,3 +1,5 @@
+// Import polyfills FIRST
+import './polyfills';
 import "react-native-gesture-handler";
 
 import React, { Suspense } from 'react';
@@ -6,7 +8,6 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import "text-encoding-polyfill";
 
 const Tab = createBottomTabNavigator();
 

@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "ec",
     "slug": "ec",
@@ -34,10 +34,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.ec"
+      "package": "com.anonymous.ec",
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "build": {
+        "babel": {
+          "include": ["@expo/vector-icons"]
+        }
+      }
     },
     "plugins": [
       "expo-router",
@@ -50,7 +56,8 @@
           }
         }
       ],
-      "react-native-background-fetch"
+      "react-native-background-fetch",
+      "expo-notifications"
     ],
     "extra": {
       "router": {

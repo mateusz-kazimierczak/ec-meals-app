@@ -1,6 +1,16 @@
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
-import * as Linking from "expo-linking";
+import { StyleSheet, View, Text, TouchableOpacity, Platform } from "react-native";
 import Container from "../../components/Container/Container";
+
+// Conditionally import Linking for non-web platforms with error handling
+let Linking;
+try {
+  if (Platform.OS !== 'web') {
+    Linking = require("expo-linking");
+  }
+} catch (error) {
+  console.warn("Failed to load expo-linking:", error);
+  Linking = null;
+}
 
 import { useAtom } from "jotai";
 import { authAtom } from "../../_helpers/Atoms";
@@ -8,6 +18,14 @@ import Icons from "@expo/vector-icons/Ionicons";
 
 export default function Preferences({ navigation, route }) {
   const [auth, setAuth] = useAtom(authAtom);
+
+  const handleLinkPress = (url) => {
+    if (Platform.OS === 'web') {
+      window.open(url, '_blank');
+    } else if (Linking) {
+      Linking.openURL(url);
+    }
+  };
 
   const preferencesOptions = [
     {
@@ -73,7 +91,7 @@ export default function Preferences({ navigation, route }) {
         <Text style={styles.bottomText}>
           App by{" "}
           <Text
-            onPress={() => Linking.openURL(process.env.EXPO_PUBLIC_DEV_URL)}
+            onPress={() => handleLinkPress(process.env.EXPO_PUBLIC_DEV_URL)}
             style={styles.link}
           >
             Mateusz Kazimierczak

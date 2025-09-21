@@ -14,26 +14,36 @@ import GroupCheckboxTable from "../../components/Forms/GroupCheckboxTable"; // I
 
 import platformAlert from "../../_helpers/useAlert";
 
+import Example from "./MobileNotifications/Example";
+
 const generateNotificationSchema = (userSchema) => ({
+  meals: {
+    title: "Normal Meals",
+    values: userSchema.meals || Array(7).fill(false),
+    group: 1,
+  },
+  packed_meals: {
+    title: "Packed Meals",
+    values: userSchema.packed_meals || Array(7).fill(false),
+    group: 1,
+  },
+  any_meals: {
+    title: "Any Meals",
+    values: userSchema.any_meals || Array(7).fill(false),
+    group: 2,
+  }
+});
+
+const generateReportSchema = (userSchema) => ({
   full_report: {
     title: "Full Report",
     values: userSchema.full_report || Array(7).fill(false),
     group: 1,
   },
-  meals: {
-    title: "Normal Meals",
-    values: userSchema.meals || Array(7).fill(false),
+  report_on_notifications: {
+    title: "Report on Notifications",
+    values: userSchema.report_on_notifications || Array(7).fill(false),
     group: 2,
-  },
-  packed_meals: {
-    title: "Packed Meals",
-    values: userSchema.packed_meals || Array(7).fill(false),
-    group: 2,
-  },
-  any_meals: {
-    title: "Any Meals",
-    values: userSchema.any_meals || Array(7).fill(false),
-    group: 3,
   }
 });
 
@@ -60,12 +70,15 @@ export default function NotificationPreferences({ navigation, route }) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [auth, setAuth] = useAtom(authAtom);
+  const [device, setDevice] = useState(null);
 
   const [notificationSchema, setNotificationSchema] = useState(generateNotificationSchema({}));
   const [notificationSchedule, setNotificationSchedule] = useState(generateNotificationSchedule({}));
+  const [reportSchema, setReportSchema] = useState(generateReportSchema({}));
 
   const [notificationTypes, setNotificationTypes] = useState({
     email: false,
+    push: false,
   });
 
 
@@ -84,15 +97,18 @@ export default function NotificationPreferences({ navigation, route }) {
       }
     );
 
-    user_notifications = 
-
     // Initialize notification schema and schedule with existing preferences
     setNotificationSchema(generateNotificationSchema(res.notifications.schema || {}));
 
+    setDevice(res.notifications.device || null);
+
     setNotificationSchedule(generateNotificationSchedule(res.notifications.schedule || {}));
-    
+
+    setReportSchema(generateReportSchema(res.notifications.report || {}));
+
     setNotificationTypes({
       email: res.notifications.notificationTypes.email || false,
+      push: res.notifications.notificationTypes.push || false,
     });
 
     setName(res.firstName);
@@ -103,14 +119,17 @@ export default function NotificationPreferences({ navigation, route }) {
     setLoading(true);
     
     // Only care about the values, return in form {key: values}
-    schema = Object.fromEntries(
+    const schema = Object.fromEntries(
       Object.entries(notificationSchema).map(([key, value]) => [key, value.values])
     );
-    schedule = Object.fromEntries(
+    const schedule = Object.fromEntries(
       Object.entries(notificationSchedule).map(([key, value]) => [key, value.values])
     );
-    
-    console.log("Saving preferences:", { schema, schedule, notificationTypes });
+    const report = Object.fromEntries(
+      Object.entries(reportSchema).map(([key, value]) => [key, value.values])
+    );
+
+    console.log("Saving preferences:", { schema, schedule, notificationTypes, report });
 
     await cFetch.post(
       `${process.env.EXPO_PUBLIC_BACKEND_API}/api/preferences/notifications`,
@@ -118,6 +137,8 @@ export default function NotificationPreferences({ navigation, route }) {
         schema,
         schedule,
         notificationTypes,
+        report,
+        device,
       },
       {
         user_id: route.params.forUser,
@@ -151,12 +172,31 @@ export default function NotificationPreferences({ navigation, route }) {
               />  
             </View>
 
+            <View>
+              <Checkbox
+                label={"Push Notifications (Mobile)"}
+                value={notificationTypes.push}
+                setValue={(value) => setNotificationTypes({ ...notificationTypes, push: value })}
+              />  
+            </View>
 
-            <Text style={styles.pageHeader}>Notification Schema</Text>
+            {
+              notificationTypes.push &&
+              <Example device={device} setDevice={setDevice} />
+            }
+
+
+            <Text style={styles.pageHeader}>Reminder Notifications Schema</Text>
 
             <GroupCheckboxTable
               data={notificationSchema}
               setData={(newData) => setNotificationSchema(newData)} />
+
+            <Text style={styles.pageHeader}>Report Schema</Text>
+
+            <GroupCheckboxTable
+              data={reportSchema}
+              setData={(newData) => setReportSchema(newData)} />
 
             <Text style={styles.pageHeader}>Notification Schedule</Text>
 

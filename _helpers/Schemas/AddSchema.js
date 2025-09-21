@@ -7,7 +7,7 @@ export default Joi.object({
     then: Joi.required(),
     otherwise: Joi.optional(),
   }),
-  birthday: Joi.string().trim().pattern(/^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])$/).empty(""),
+  birthday: Joi.string().trim().regex(/^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])$/).empty(""),
   password: Joi.string().required().trim(),
   firstName: Joi.string().required(),
   lastName: Joi.string().empty(""),
