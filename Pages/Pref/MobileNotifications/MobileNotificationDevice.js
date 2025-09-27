@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, Button, Platform, TextInput, StyleSheet } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
+import { registerForPushNotificationsAsync, sendTestNotification } from '../../../_helpers/pushNotifications';
+import { useAtom } from 'jotai';
+import { authAtom } from '../../../_helpers/Atoms';
 
 
 Notifications.setNotificationHandler({
@@ -13,61 +15,16 @@ Notifications.setNotificationHandler({
   }),
 });
 
-async function handleRegistrationError(errorMessage) {
-  alert(errorMessage);
-  throw new Error(errorMessage);
-}
-
-async function registerForPushNotificationsAsync() {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('alerts', {
-      name: 'Alerts',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-      sound: 'bell.wav'
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      handleRegistrationError('Permission not granted to get push token for push notification!');
-      return;
-    }
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-    if (!projectId) {
-      handleRegistrationError('Project ID not found');
-    }
-    try {
-      const pushTokenString = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-      return pushTokenString;
-    } catch (e) {
-      handleRegistrationError(`${e}`);
-    }
-  } else {
-    handleRegistrationError('Must use physical device for push notifications');
-  }
-}
-
 export default function MobileNotificationRegister({ device, setDevice }) {
   const [registering, setRegistering] = useState(false);
+  const [testingNotification, setTestingNotification] = useState(false);
   const [deviceName] = useState(Device.deviceName || "Unnamed Device");
+  const [auth, setAuth] = useAtom(authAtom);
 
   const handleRegister = async () => {
     setRegistering(true);
     try {
-      const token = await registerForPushNotificationsAsync();
+      const token = await registerForPushNotificationsAsync(setAuth);
       if (token) {
         setDevice({ name: deviceName, token });
       }
@@ -75,6 +32,19 @@ export default function MobileNotificationRegister({ device, setDevice }) {
       // error already handled in helper
     }
     setRegistering(false);
+  };
+
+  const handleTestNotification = async () => {
+    setTestingNotification(true);
+    try {
+      const success = await sendTestNotification();
+      if (success) {
+        alert('Test notification sent! Check your notifications in a moment.');
+      }
+    } catch (e) {
+      // error already handled in helper
+    }
+    setTestingNotification(false);
   };
 
   return (
@@ -97,6 +67,17 @@ export default function MobileNotificationRegister({ device, setDevice }) {
         onPress={handleRegister}
         disabled={registering}
       />
+      {device && device.token && (
+        <View style={styles.testSection}>
+          <Text style={styles.testLabel}>Test your notifications:</Text>
+          <Button
+            title={testingNotification ? "Sending Test..." : "Send Test Notification"}
+            onPress={handleTestNotification}
+            disabled={testingNotification}
+            color="#28a745"
+          />
+        </View>
+      )}
         </>
       )}
       </View>
@@ -132,5 +113,15 @@ const styles = StyleSheet.create({
   deviceName: {
     fontWeight: "bold",
     color: "#007AFF",
+  },
+  testSection: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  testLabel: {
+    fontSize: 16,
+    marginBottom: 10,
+    color: "#333",
+    fontStyle: 'italic',
   },
 })
