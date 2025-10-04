@@ -37,6 +37,10 @@ export default function Week({ user_id, setSaveState }) {
 
   const [loading, setLoading] = useState(true);
   const [updateState, setUpdateState] = useState(false);
+  
+  // Get actual device width
+  const deviceWidth = Dimensions.get("window").width;
+  const isSmallScreen = deviceWidth < 500;
 
   useEffect(() => {
     console.log("updateState: ", updateState);
@@ -178,16 +182,16 @@ export default function Week({ user_id, setSaveState }) {
           <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
             <Row
               data={DaysOfTheWeek}
-              style={styles.head}
-              textStyle={styles.headerText}
+              style={isSmallScreen ? styles.headSmall : styles.head}
+              textStyle={isSmallScreen ? styles.headerTextRotated : styles.headerText}
             />
             <Rows
               data={TableData}
               textStyle={styles.text}
-              style={styles.commonRow}
+              style={isSmallScreen ? styles.commonRowSmall : styles.commonRow}
             />
           </Table>
-          <View style={{ margin: screeenWidth > 500 ? 20 : 5 }}>
+          <View style={{ margin: isSmallScreen ? 5 : 20 }}>
             <Button title="Submit" onPress={SaveData} />
           </View>
         </View>
@@ -204,25 +208,67 @@ const TEXT_HEIGHT = 30;
 const OFFSET = TEXT_LENGTH / 2 - TEXT_HEIGHT / 2;
 
 const styles = StyleSheet.create({
-  commonRow: { height: screeenWidth > 500 ? 60 : 50 },
-  head: { height: screeenWidth > 500 ? 30 : 100, backgroundColor: "#f1f8ff" },
-  text: { margin: 6 },
+  commonRow: { 
+    height: 60,
+  },
+  commonRowSmall: { 
+    height: 50,
+  },
+  head: { 
+    height: 30, 
+    backgroundColor: "#f1f8ff",
+  },
+  headSmall: { 
+    height: 100, 
+    backgroundColor: "#f1f8ff",
+  },
+  text: { 
+    margin: 6,
+  },
   headerText: {
     margin: 6,
     padding: 5,
     fontWeight: "bold",
-    ...(screeenWidth < 500 && {
-      transform: [
-        { rotate: "-90deg" },
-        { translateX: 0 },
-        { translateY: -OFFSET },
-      ],
-    }),
     width: TEXT_LENGTH,
     height: TEXT_HEIGHT,
   },
+  headerTextRotated: Platform.select({
+    ios: {
+      margin: 6,
+      padding: 5,
+      fontWeight: "bold",
+      width: TEXT_LENGTH,
+      height: TEXT_HEIGHT,
+      transform: [
+        { rotate: "-90deg" },
+        { translateY: -OFFSET },
+      ],
+      writingDirection: 'ltr',
+    },
+    android: {
+      margin: 6,
+      padding: 5,
+      fontWeight: "bold",
+      width: TEXT_LENGTH,
+      height: TEXT_HEIGHT,
+      transform: [
+        { rotate: "-90deg" },
+        { translateY: -OFFSET },
+      ],
+    },
+    default: {
+      margin: 6,
+      padding: 5,
+      fontWeight: "bold",
+      width: TEXT_LENGTH,
+      height: TEXT_HEIGHT,
+      transform: [
+        { rotate: "-90deg" },
+        { translateY: -OFFSET },
+      ],
+    },
+  }),
   noMealsRow: {
     backgroundColor: "red",
   },
-
 });

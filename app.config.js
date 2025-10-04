@@ -2,6 +2,7 @@ export default {
   "expo": {
     "name": "EC Meals",
     "slug": "ec",
+    "scheme": "ec",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
