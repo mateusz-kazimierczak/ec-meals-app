@@ -8,7 +8,7 @@ import {
 
 import { useState } from "react";
 
-export default UnmarkedList = ({ unmarked, noMeals }) => {
+const UnmarkedList = ({ unmarked, noMeals }) => {
   const [open, setOpen] = useState(true);
 
   return (
@@ -67,3 +67,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default UnmarkedList;

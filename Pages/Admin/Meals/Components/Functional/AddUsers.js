@@ -17,7 +17,7 @@ import Loader from "../../../../../components/Loader/Loader";
 import { useFetch } from "../../../../../_helpers/useFetch";
 import useAlert from "../../../../../_helpers/useAlert";
 
-export default AddUsers = ({ date, fetch }) => {
+const AddUsers = ({ date, fetch }) => {
   if (!date) return null;
 
   const [open, setOpen] = useState(false);
@@ -197,3 +197,5 @@ const buildDayString = (date) => {
 
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 };
+
+export default AddUsers;

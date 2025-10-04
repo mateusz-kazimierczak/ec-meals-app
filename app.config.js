@@ -1,8 +1,9 @@
-{
+export default {
   "expo": {
-    "name": "ec",
+    "name": "EC Meals",
     "slug": "ec",
-    "version": "1.0.0",
+    "scheme": "ec",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,7 +16,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.anonymous.ec",
       "infoPlist": {
         "NSAppTransportSecurity": {
@@ -34,10 +35,21 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.ec"
+      "package": "com.anonymous.ec",
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON,
+      "softwareKeyboardLayoutMode": "pan",
+      "navigationBar": {
+        "visible": true,
+        "style": "light"
+      }
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "build": {
+        "babel": {
+          "include": ["@expo/vector-icons"]
+        }
+      }
     },
     "plugins": [
       "expo-router",
@@ -50,7 +62,18 @@
           }
         }
       ],
-      "react-native-background-fetch"
+      "react-native-background-fetch",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "sounds": [
+            "./assets/bell.wav",
+          ]
+        }
+      ]
     ],
     "extra": {
       "router": {

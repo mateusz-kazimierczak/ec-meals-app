@@ -1,74 +1,137 @@
-import { StyleSheet, View, Dimensions, Text, Button } from "react-native";
-import * as Linking from "expo-linking";
+import { StyleSheet, View, Text, TouchableOpacity, Platform } from "react-native";
 import Container from "../../components/Container/Container";
+
+// Conditionally import Linking for non-web platforms with error handling
+let Linking;
+try {
+  if (Platform.OS !== 'web') {
+    Linking = require("expo-linking");
+  }
+} catch (error) {
+  console.warn("Failed to load expo-linking:", error);
+  Linking = null;
+}
 
 import { useAtom } from "jotai";
 import { authAtom } from "../../_helpers/Atoms";
+import Icons from "@expo/vector-icons/Ionicons";
 
 export default function Preferences({ navigation, route }) {
   const [auth, setAuth] = useAtom(authAtom);
 
+  const handleLinkPress = (url) => {
+    if (Platform.OS === 'web') {
+      window.open(url, '_blank');
+    } else if (Linking) {
+      Linking.openURL(url);
+    }
+  };
+
+  const preferencesOptions = [
+    {
+      name: "General Preferences",
+      icon: "settings-outline",
+      action: () =>
+        navigation.navigate("General Preferences", {
+          returnPaths: ["Preferences Dashboard"],
+          forUser: auth.user_id,
+        }),
+    },
+    {
+      name: "Notification Preferences",
+      icon: "notifications-outline",
+      action: () =>
+        navigation.navigate("Notification Preferences", {
+          returnPaths: ["Preferences Dashboard"],
+        }),
+    },
+    {
+      name: "Logs",
+      icon: "server-outline",
+      action: () =>
+        navigation.navigate("Logs", {
+          user_id: true,
+          returnPaths: ["Preferences Dashboard"],
+        }),
+    },
+    {
+      name: "Edit Account",
+      icon: "create-outline",
+      action: () =>
+        navigation.navigate("Edit Account", {
+          returnPaths: ["Preferences Dashboard"],
+          token: auth.token,
+        }),
+    },
+    {
+      name: "Log Out",
+      icon: "log-out-outline",
+      action: () => {
+        setAuth({});
+        navigation.navigate("Home");
+      },
+    },
+  ];
+
   return (
     <Container>
-      <View>
-        <Text>Preferences</Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Log Out"
-            onPress={() => {
-              setAuth({});
-              navigation.navigate("Home");
-            }}
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Edit account"
-            onPress={() =>
-              navigation.navigate("Edit Account", {
-                returnPaths: ["Preferences Dashboard"],
-                token: auth.token,
-              })
-            }
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button
-            title="Preferences"
-            onPress={() =>
-              navigation.navigate("Notification Preferences", {
-                returnPaths: ["Preferences Dashboard"],
-              })
-            }
-          />
-        </View>
+      <View style={styles.preferencesContainer}>
+        {preferencesOptions.map((option) => (
+          <TouchableOpacity
+            key={option.name}
+            style={styles.linkContainer}
+            onPress={option.action}
+          >
+            <Icons name={option.icon} size={24} color={"#3b78a1"} style={styles.icon} />
+            <Text style={styles.linkText}>{option.name}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
-      <View style={styles.bottomInfoContainerOuter}>
-        <View style={styles.bottomInfoContainerInner}>
-          <Text>App by </Text>
+      <View style={styles.bottomInfoContainer}>
+        <Text style={styles.bottomText}>
+          App by{" "}
           <Text
-            onPress={() => Linking.openURL(process.env.EXPO_PUBLIC_DEV_URL)}
-            style={{ textDecorationLine: "underline" }}
+            onPress={() => handleLinkPress(process.env.EXPO_PUBLIC_DEV_URL)}
+            style={styles.link}
           >
             Mateusz Kazimierczak
           </Text>
-        </View>
+        </Text>
       </View>
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    margin: 20,
+  preferencesContainer: {
+    marginVertical: 20,
+    paddingHorizontal: 20,
   },
-  bottomInfoContainerOuter: {
-    flex: 1,
+  linkContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    alignContent: "flex-end",
+    alignItems: "center",
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
-  bottomInfoContainerInner: {
-    flexDirection: "row",
+  icon: {
+    marginRight: 10,
+  },
+  linkText: {
+    fontSize: 18,
+    color: "#007AFF",
+    textDecorationLine: "none",
+  },
+  bottomInfoContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  bottomText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  link: {
+    textDecorationLine: "underline",
+    color: "#007AFF",
   },
 });

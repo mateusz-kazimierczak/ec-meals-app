@@ -1,6 +1,6 @@
-import Joi from "joi";
+import * as Yup from "yup";
 
-export default Joi.object({
-  username: Joi.string().required(),
-  password: Joi.string().required(),
+export default Yup.object({
+  username: Yup.string().required("Username is required"),
+  password: Yup.string().required("Password is required"),
 });

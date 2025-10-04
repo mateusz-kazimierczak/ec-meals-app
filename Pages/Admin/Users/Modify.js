@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 
 import Container from "../../../components/Container/Container";
@@ -22,7 +23,7 @@ import { useAtom } from "jotai";
 import { authAtom } from "../../../_helpers/Atoms";
 
 import { set, useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import ModifySchema from "../../../_helpers/Schemas/ModifySchema";
 import AddSchema from "../../../_helpers/Schemas/AddSchema";
@@ -43,7 +44,10 @@ export default function ModifyUser({ navigation, route }) {
   }, []);
 
   const fetchUserData = async () => {
+
+    // check if user is being modified or a new user is being created
     if (route.params?.user_id || route.params?.token) {
+      // User is being modified, fetch user data from DB
       setLoading(true);
       const res = await cFetch.get(
         `${process.env.EXPO_PUBLIC_BACKEND_API}/api/users/single`,
@@ -53,6 +57,8 @@ export default function ModifyUser({ navigation, route }) {
           token: route.params.token,
         }
       );
+
+      const birthdayString = res.birthdayDay == undefined ? "" : `${res.birthdayDay}/${res.birthdayMonth}`;
       reset({
         defaultUsername: false,
         username: res.username,
@@ -64,6 +70,7 @@ export default function ModifyUser({ navigation, route }) {
         active: res.active,
         guest: res.guest,
         diet: res.diet,
+        birthday: birthdayString,
       });
       setLoading(false);
     }
@@ -76,7 +83,7 @@ export default function ModifyUser({ navigation, route }) {
     formState: { errors },
     watch,
   } = useForm({
-    resolver: joiResolver(
+    resolver: yupResolver(
       route.params?.user_id || route.params?.token ? ModifySchema : AddSchema
     ),
   });
@@ -210,6 +217,14 @@ export default function ModifyUser({ navigation, route }) {
               errors={errors}
             />
 
+            <CustomTextInput
+              control={control}
+              name={"birthday"}
+              placeholder={"Day/Month"}
+              label={"Date of birth (leave blank to hide)"}
+              errors={errors}
+            />
+
             {!(route.params?.user_id || route.params?.token) && email && (
               <CheckBoxInput
                 control={control}
@@ -275,6 +290,8 @@ export default function ModifyUser({ navigation, route }) {
                   requestURL={`${process.env.EXPO_PUBLIC_BACKEND_API}/api/diets`}
                 />
 
+
+
                 <CheckBoxInput
                   control={control}
                   name={"active"}
@@ -293,32 +310,46 @@ export default function ModifyUser({ navigation, route }) {
             )}
 
             <View style={styles.buttonContainer}>
-              <Button
+              <TouchableOpacity
                 onPress={handleSubmit(onSubmit)}
-                style={styles.button}
-                title={
-                  route.params?.user_id || route.params?.token
+                style={[styles.button, styles.primaryButton]}
+              >
+                <Text style={styles.buttonText}>
+                  {route.params?.user_id || route.params?.token
                     ? "Update User"
-                    : "Add User"
-                }
-                color="#3b78a1"
-              />
+                    : "Add User"}
+                </Text>
+              </TouchableOpacity>
               {auth.role === "admin" && route.params?.user_id && (
-               <>
-                <Button
-                  onPress={confirmRemoveUser}
-                  style={styles.button}
-                  title={"Remove User"}
-                  color="red"
-                />
-                <Button
-                  onPress={() =>
-                    navigation.navigate("Admin Notification Preferences", { returnPaths: ["Dashbaord", "Users List"], forUser: route.params.user_id })
-                  }
-                  style={styles.button}
-                  title={"Set Preferences"}
-                  color="#3b78a1"
-                />
+                <>
+                  <TouchableOpacity
+                    onPress={confirmRemoveUser}
+                    style={[styles.button, styles.dangerButton]}
+                  >
+                    <Text style={styles.buttonText}>Remove User</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("Admin Notification Preferences", {
+                        returnPaths: ["Dashbaord", "Users List"],
+                        forUser: route.params.user_id,
+                      })
+                    }
+                    style={[styles.button, styles.secondaryButton]}
+                  >
+                    <Text style={styles.buttonText}>Set Notification Preferences</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("Admin General Preferences", {
+                        returnPaths: ["Dashbaord", "Users List"],
+                        forUser: route.params.user_id,
+                      })
+                    }
+                    style={[styles.button, styles.secondaryButton]}
+                  >
+                    <Text style={styles.buttonText}>Set General Preferences</Text>
+                  </TouchableOpacity>
                 </>
               )}
             </View>
@@ -360,8 +391,30 @@ const styles = StyleSheet.create({
   buttonContainer: {
     margin: 10,
     marginBottom: 50,
-    flex: 1,
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-around",
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 5,
+    minWidth: "40%",
+  },
+  primaryButton: {
+    backgroundColor: "#007AFF",
+  },
+  secondaryButton: {
+    backgroundColor: "#34C759",
+  },
+  dangerButton: {
+    backgroundColor: "#FF3B30",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

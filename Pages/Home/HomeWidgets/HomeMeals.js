@@ -1,7 +1,7 @@
 import { View, Text, Button, StyleSheet, Dimensions } from "react-native";
-import Loader from "../../components/Loader/Loader";
+import Loader from "../../../components/Loader/Loader";
 import { useEffect, useState } from "react";
-import { useFetch } from "../../_helpers/useFetch";
+import { useFetch } from "../../../_helpers/useFetch";
 
 const screeenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -35,15 +35,28 @@ export default function HomeMeals({ navigation, route }) {
     setLoading(true);
     const res = await cFetch
       .get(`${process.env.EXPO_PUBLIC_BACKEND_API}/api/home/meals`)
-      .catch((err) =>
-        console.log("Error while fetching data from server: ", err)
-      );
+      .catch((err) => {
+        console.log("Error while fetching data from server: ", err);
+        return null; // Return null explicitly when there's an error
+      });
 
-    setMealsToday(res.allMealsToday);
-    setMealsTomorrow(res.tomorrowMeals);
+    // Check if res exists and has the expected properties
+    if (res && res.allMealsToday !== undefined) {
+      setMealsToday(res.allMealsToday);
+    } else {
+      setMealsToday(null);
+    }
+    
+    if (res && res.tomorrowMeals !== undefined) {
+      setMealsTomorrow(res.tomorrowMeals);
+    } else {
+      setMealsTomorrow(null);
+    }
+    
     setLoading(false);
 
-    console.log("Meals today: ", typeof res.allMealsToday, res.allMealsToday);
+    console.log("Meals today: ", typeof res?.allMealsToday, res?.allMealsToday);
+    console.log("Meals tomorrow: ", typeof res?.tomorrowMeals, res?.tomorrowMeals);
   };
 
   return (
@@ -56,9 +69,11 @@ export default function HomeMeals({ navigation, route }) {
               mealsToday?.map(
                 (meal, index) =>
                   meal && (
-                    <Text style={styles.singleMeal} key={index}>
-                      {MealCategories[index]}
-                    </Text>
+                    <View style={styles.mealContainer} key={index}>
+                      <Text style={[styles.singleMeal, { borderBottomColor: MealHighlight[index] }]}>
+                        {MealCategories[index]}
+                      </Text>
+                    </View>
                   )
               )}
           </View>
@@ -68,15 +83,19 @@ export default function HomeMeals({ navigation, route }) {
               mealsTomorrow?.map(
                 (meal, index) =>
                   meal && (
-                    <Text style={styles.singleMeal} key={index}>
-                      {MealCategories[index]}
-                    </Text>
+                    <View style={styles.mealContainer} key={index}>
+                      <Text style={[styles.singleMeal, { borderBottomColor: MealHighlight[index] }]}>
+                        {MealCategories[index]}
+                      </Text>
+                    </View>
                   )
               )}
           </View>
         </View>
       </Loader>
-      <Button title="Mark meals" onPress={() => navigation.navigate("Meals")} />
+      <View >
+        <Button title="Mark meals" onPress={() => navigation.navigate("Meals")} />
+      </View>
     </View>
   );
 }
@@ -96,13 +115,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   singleMeal: {
-    width: "100%",
     textAlign: "center",
     fontSize: 20,
-    padding: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1.5,
+    alignSelf: "center",
+  },
+  mealContainer: {
+    alignItems: "center",
+    marginVertical: 3,
   },
   outerContainer: {
     padding: 30,
+    flex: 1,
+    justifyContent: "center",
   },
 });
 
@@ -116,3 +143,14 @@ const MealCategories = [
   "No Meals",
   "Unmarked",
 ];
+
+const MealHighlight = [
+  "green",
+  "green",
+  "green",
+  "blue",
+  "blue",
+  "blue",
+  "orange",
+  "red",
+]

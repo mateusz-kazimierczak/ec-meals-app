@@ -5,6 +5,8 @@ import {
   Button,
   StyleSheet,
   FlatList,
+  TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import DeepNavLink from "../../../components/header/DeepNavLinks/DeepNavLinks";
 
@@ -76,11 +78,15 @@ export default function Diets({ navigation, route }) {
 
   // FlatList components
   const Item = ({ diet }) => (
-    <View key={diet.id} style={styles.singleDietContainer}>
-      <Text style={{ fontSize: 20, textDecorationLine: "underline" }}>
-        {diet.name}
-      </Text>
-      <Button title="Remove" onPress={() => removeDiet(diet.id)} />
+    <View key={diet.id} style={styles.dietCard}>
+      <View style={styles.dietInfo}>
+        <Text style={styles.dietName}>{diet.name}</Text>
+      </View>
+      <Button 
+        title="Remove" 
+        color="#dc3545"
+        onPress={() => removeDiet(diet.id)}
+      />
     </View>
   );
 
@@ -94,30 +100,40 @@ export default function Diets({ navigation, route }) {
         routes={["Dashboard"]}
       />
       <Container>
-        <View>
-          <Text>Diets</Text>
-          <View>
+        <View style={styles.mainContainer}>
+          <Text style={styles.pageTitle}>Diet Management</Text>
+          
+          {/* Add new diet section */}
+          <View style={styles.addSection}>
+            <Text style={styles.sectionTitle}>Add New Diet</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                onChangeText={(val) => setNewDietName(val)}
+                value={newDietName}
+                style={styles.textInput}
+                placeholder="Enter diet name"
+                placeholderTextColor="#999"
+              />
+              <Button 
+                title="Add Diet" 
+                color="#3b78a1"
+                onPress={newDiet}
+              />
+            </View>
+          </View>
+
+          {/* Diets list section */}
+          <View style={styles.listSection}>
+            <Text style={styles.sectionTitle}>
+              Current Diets ({diets.length})
+            </Text>
             <FlatList
-              numColumns={2}
               data={diets}
               renderItem={renderItem}
-              contentContainerStyle={{ gap: 10 }}
-              columnWrapperStyle={{ gap: 20 }}
+              contentContainerStyle={styles.listContainer}
               ListEmptyComponent={DietListEmpty}
+              showsVerticalScrollIndicator={false}
             />
-          </View>
-        </View>
-
-        <View>
-          <Text>Add new diet</Text>
-          <View style={styles.newDietcontainer}>
-            <TextInput
-              onChangeText={(val) => setNewDietName(val)}
-              value={newDietName}
-              style={styles.addButton}
-              placeholder="Diet name"
-            />
-            <Button onPress={newDiet} title="Add" />
           </View>
         </View>
       </Container>
@@ -127,38 +143,120 @@ export default function Diets({ navigation, route }) {
 
 const DietListEmpty = () => {
   return (
-    <View
-      style={{
-        marginTop: 20,
-        marginBottom: 20,
-      }}
-    >
-      <Text>No diets. Add one using the form below:</Text>
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>No diets available</Text>
+      <Text style={styles.emptySubtext}>
+        Add your first diet using the form above
+      </Text>
     </View>
   );
 };
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  addButton: {
-    width: "70%",
-    padding: 10,
-    borderColor: "black",
+  mainContainer: {
+    flex: 1,
+    padding: 16,
   },
-  newDietcontainer: {
-    display: "flex",
-    flexDirection: "row",
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#3b78a1',
+    textAlign: 'center',
+    marginBottom: 24,
   },
-  singleDietContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    alignSelf: "stretch",
-    textAlign: "center",
-    width: "45%",
+  addSection: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
   },
-  allDietsContainer: {
-    display: "flex",
-    flexDirection: "column",
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#495057',
+    marginBottom: 16,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  textInput: {
+    flex: 1,
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#ced4da',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#495057',
+  },
+  listSection: {
+    flex: 1,
+  },
+  listContainer: {
+    paddingBottom: 20,
+  },
+  dietCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  dietInfo: {
+    flex: 1,
+  },
+  dietName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#212529',
+    marginBottom: 4,
+  },
+  dietId: {
+    fontSize: 14,
+    color: '#6c757d',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 8,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6c757d',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#adb5bd',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

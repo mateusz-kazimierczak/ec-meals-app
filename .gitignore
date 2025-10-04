@@ -45,3 +45,7 @@ yarn-error.*
 
 # Local Netlify folder
 .netlify
+
+# Firebase
+ecmeals-782ee-firebase-adminsdk-fbsvc-c1386972a2.json
+google-services.json

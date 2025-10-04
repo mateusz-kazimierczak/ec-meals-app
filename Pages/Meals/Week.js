@@ -1,5 +1,3 @@
-// This file is a mess. If you are reading this, please fix it.
-
 import {
   StyleSheet,
   View,
@@ -8,15 +6,15 @@ import {
   Button,
   ScrollView,
 } from "react-native";
+import { Platform } from 'react-native';
 
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Table, TableWrapper, Row, Rows } from "react-native-reanimated-table";
-import { useEffect, useState } from "react";
-import Checkbox from "expo-checkbox";
+
 
 import Loader from "../../components/Loader/Loader";
 
@@ -25,107 +23,12 @@ import { useFetch } from "../../_helpers/useFetch";
 import MealHeader from "./MealHeader";
 import useTimer from "../../_helpers/useTimer";
 
-import { useAtom } from "jotai";
-import { authAtom } from "../../_helpers/Atoms";
+import { MealTypes, DaysOfTheWeek, screeenWidth, SavedStatusColor } from "./common";
 
-const screeenWidth = Dimensions.get("window").width;
+import DayCheckbox from "./DayCheckbox";
 
-const screenHeight = Dimensions.get("window").height;
 
-const constructWarningMessage = (time) => {
-  const min = `${Math.floor((time / (1000 * 60 * 60)) % 24)}`.padStart(2, 0);
-  const sec = `${Math.floor((time / 1000 / 60) % 60)}`.padStart(2, 0);
-
-  return `Come back in ${min}:${sec}`;
-};
-
-const DaysOfTheWeek = [
-  "Meals",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-const MealTypes =
-  screeenWidth > 500
-    ? ["Breakfast", "Lunch", "Supper", "P1", "P2", "PS", "No Meals"]
-    : ["B", "L", "S", "P1", "P2", "PS", "X"];
-
-const DayCheckbox = ({
-  data,
-  setData,
-  indexDay,
-  indexType,
-  setUpdateState,
-  disabledDay,
-}) => {
-  let isDisabled;
-  if (indexType < 3 || indexType == MealTypes.length - 1) {
-    isDisabled = indexDay == disabledDay;
-  }
-  if (indexType >= 3 && !isDisabled) {
-    isDisabled = indexDay == (disabledDay + 1) % 7;
-  }
-  
-  const [auth, setAuth] = useAtom(authAtom);
-  const toggleValue = () => {
-    console.log("Auth: ", auth);
-    setUpdateState(false);
-    setData((prev) => {
-      const newData = [...prev];
-
-      if (indexType == MealTypes.length - 1) {
-        // If No meals is selected, unselect everything else
-        newData[indexDay] = newData[indexDay].map(() => false);
-        newData[indexDay][indexType] = true;
-        return newData;
-      } else {
-        // Otherwise just toggle the value
-        newData[indexDay][indexType] = !newData[indexDay][indexType];
-        newData[indexDay][MealTypes.length - 1] = false;
-        return newData;
-      }
-    });
-  };
-
-  getBackgroundColor = () => {
-    if (isDisabled) {
-      return "red";
-    } else if (indexType == MealTypes.length - 1) {
-      return "#ffd063";
-    } else {
-      return undefined;
-    }
-  };
-  return (
-    <View
-      style={{
-        flex: 1,
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 5,
-        backgroundColor: getBackgroundColor(),
-      }}
-    >
-      <Checkbox
-        style={
-          screeenWidth > 500 ? styles.checkboxDesktop : styles.checkboxMobile
-        }
-        disabled={isDisabled && !auth?.preferences?.allowNextWeek}
-        value={data[indexDay][indexType]}
-        onValueChange={toggleValue}
-        color={"#3b78a1"}
-      />
-    </View>
-  );
-};
-
-export default function Week({ user_id }) {
+export default function Week({ user_id, setSaveState }) {
   const [mealData, setMealData] = useState(
     DaysOfTheWeek.slice(1).map((day) => MealTypes.map((meal) => false))
   );
@@ -134,11 +37,63 @@ export default function Week({ user_id }) {
 
   const [loading, setLoading] = useState(true);
   const [updateState, setUpdateState] = useState(false);
+  
+  // Get actual device width
+  const deviceWidth = Dimensions.get("window").width;
+  const isSmallScreen = deviceWidth < 500;
+
+  useEffect(() => {
+    console.log("updateState: ", updateState);
+    console.log("loading: ", loading);
+    if (updateState) {
+      setSaveState(0);
+    }
+    else if (loading) {
+      setSaveState(1);
+    } else {
+      setSaveState(2);
+    }  }
+  , [loading, updateState]);
+
+  
   const cFetch = useFetch();
 
-  const [timerText, warning, setTimer] = useTimer({
+  const [timerText, setTimer] = useTimer({
     nextCall: () => fetchMeals(),
   });
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+
+      // use AppState on react native
+
+      if (updateState) return;
+
+      event.preventDefault();
+      event.returnValue = "";
+      cFetch
+      .post(
+        `${process.env.EXPO_PUBLIC_BACKEND_API}/api/meals`,
+        { meals: mealData },
+        { forUser: user_id }
+      )
+      .catch((err) =>
+        console.log("Error while fetching data from server: ", err)
+      );
+    };
+
+    // If the device is web, setup beforeunload event listener
+    if (Platform.OS === 'web') {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      if (Platform.OS === 'web') {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      }
+      
+    };
+  }, [mealData, user_id]);
 
   const fetchMeals = async () => {
     setLoading(true);
@@ -147,17 +102,30 @@ export default function Week({ user_id }) {
       .get(`${process.env.EXPO_PUBLIC_BACKEND_API}/api/meals`, null, {
         forUser: user_id,
       })
-      .catch((err) =>
-        console.log("Error while fetching data from server: ", err)
-      );
+      .catch((err) => {
+        console.log("Error while fetching data from server: ", err);
+        return null; // Return null explicitly when there's an error
+      });
       
-
-    setMealData(res.meals);
-    setTimer(res.updateTime);
+    // Check if res exists and has the expected properties
+    if (res && res.meals !== undefined) {
+      setMealData(res.meals);
+    }
+    
+    if (res && res.updateTime !== undefined) {
+      setTimer(res.updateTime);
+    }
+    
+    if (res && res.disabledDay !== undefined) {
+      setDisabledDay(user_id ? undefined : res.disabledDay);
+    }
+    
+    if (res && res.firstName !== undefined) {
+      setFirstName(res.firstName);
+    }
+    
     setUpdateState(true);
     setLoading(false);
-    setDisabledDay(user_id ? undefined : res.disabledDay);
-    setFirstName(res.firstName);
   };
 
   const TableData = MealTypes.map((day, indexType) =>
@@ -197,12 +165,23 @@ export default function Week({ user_id }) {
     }, [])
   );
 
+  // Create custom rotated headers for iOS
+  const headerData = isSmallScreen 
+    ? DaysOfTheWeek.map((day, index) => (
+        <View key={index} style={styles.headerCellContainer}>
+          <View style={styles.rotatedTextContainer}>
+            <Text style={styles.headerTextRotated}>{day}</Text>
+          </View>
+        </View>
+      ))
+    : DaysOfTheWeek;
+
   return (
     <>
       <Loader
         loading={loading}
         warningIconName={"cloud-upload-outline"}
-        warning={warning}
+        warning={false}
         warningMessage={timerText}
       >
         <MealHeader
@@ -213,17 +192,17 @@ export default function Week({ user_id }) {
         <View style={styles.container}>
           <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
             <Row
-              data={DaysOfTheWeek}
-              style={styles.head}
-              textStyle={styles.headerText}
+              data={headerData}
+              style={isSmallScreen ? styles.headSmall : styles.head}
+              textStyle={!isSmallScreen ? styles.headerText : undefined}
             />
             <Rows
               data={TableData}
               textStyle={styles.text}
-              style={styles.commonRow}
+              style={isSmallScreen ? styles.commonRowSmall : styles.commonRow}
             />
           </Table>
-          <View style={{ margin: 20 }}>
+          <View style={{ margin: isSmallScreen ? 5 : 20 }}>
             <Button title="Submit" onPress={SaveData} />
           </View>
         </View>
@@ -232,36 +211,58 @@ export default function Week({ user_id }) {
   );
 }
 
+
+// Styling --- 
+
 const TEXT_LENGTH = 100;
 const TEXT_HEIGHT = 30;
 const OFFSET = TEXT_LENGTH / 2 - TEXT_HEIGHT / 2;
 
 const styles = StyleSheet.create({
-  commonRow: { height: screeenWidth > 500 ? 60 : 50 },
-  head: { height: screeenWidth > 500 ? 30 : 100, backgroundColor: "#f1f8ff" },
-  text: { margin: 6 },
+  commonRow: { 
+    height: 60,
+  },
+  commonRowSmall: { 
+    height: 50,
+  },
+  head: { 
+    height: 30, 
+    backgroundColor: "#f1f8ff",
+  },
+  headSmall: { 
+    height: 100, 
+    backgroundColor: "#f1f8ff",
+  },
+  text: { 
+    margin: 6,
+  },
   headerText: {
     margin: 6,
     padding: 5,
     fontWeight: "bold",
-    transform: screeenWidth < 500 && [
-      { rotate: "-90deg" },
-      { translateX: 0 },
-      { translateY: -OFFSET },
-    ],
     width: TEXT_LENGTH,
     height: TEXT_HEIGHT,
   },
+  headerCellContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 100,
+  },
+  rotatedTextContainer: {
+    transform: [
+      { rotate: "-90deg" },
+    ],
+    width: TEXT_LENGTH,
+    height: TEXT_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTextRotated: {
+    fontWeight: "bold",
+    textAlign: 'center',
+  },
   noMealsRow: {
     backgroundColor: "red",
-  },
-
-  checkboxDesktop: {
-    height: 40,
-    width: 40,
-  },
-  checkboxMobile: {
-    height: "80%",
-    width: "80%",
   },
 });
