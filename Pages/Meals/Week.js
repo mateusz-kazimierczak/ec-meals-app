@@ -165,6 +165,17 @@ export default function Week({ user_id, setSaveState }) {
     }, [])
   );
 
+  // Create custom rotated headers for iOS
+  const headerData = isSmallScreen 
+    ? DaysOfTheWeek.map((day, index) => (
+        <View key={index} style={styles.headerCellContainer}>
+          <View style={styles.rotatedTextContainer}>
+            <Text style={styles.headerTextRotated}>{day}</Text>
+          </View>
+        </View>
+      ))
+    : DaysOfTheWeek;
+
   return (
     <>
       <Loader
@@ -181,9 +192,9 @@ export default function Week({ user_id, setSaveState }) {
         <View style={styles.container}>
           <Table borderStyle={{ borderWidth: 2, borderColor: "#c8e1ff" }}>
             <Row
-              data={DaysOfTheWeek}
+              data={headerData}
               style={isSmallScreen ? styles.headSmall : styles.head}
-              textStyle={isSmallScreen ? styles.headerTextRotated : styles.headerText}
+              textStyle={!isSmallScreen ? styles.headerText : undefined}
             />
             <Rows
               data={TableData}
@@ -232,42 +243,25 @@ const styles = StyleSheet.create({
     width: TEXT_LENGTH,
     height: TEXT_HEIGHT,
   },
-  headerTextRotated: Platform.select({
-    ios: {
-      margin: 6,
-      padding: 5,
-      fontWeight: "bold",
-      width: TEXT_LENGTH,
-      height: TEXT_HEIGHT,
-      transform: [
-        { rotate: "-90deg" },
-        { translateY: -OFFSET },
-      ],
-      writingDirection: 'ltr',
-    },
-    android: {
-      margin: 6,
-      padding: 5,
-      fontWeight: "bold",
-      width: TEXT_LENGTH,
-      height: TEXT_HEIGHT,
-      transform: [
-        { rotate: "-90deg" },
-        { translateY: -OFFSET },
-      ],
-    },
-    default: {
-      margin: 6,
-      padding: 5,
-      fontWeight: "bold",
-      width: TEXT_LENGTH,
-      height: TEXT_HEIGHT,
-      transform: [
-        { rotate: "-90deg" },
-        { translateY: -OFFSET },
-      ],
-    },
-  }),
+  headerCellContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 100,
+  },
+  rotatedTextContainer: {
+    transform: [
+      { rotate: "-90deg" },
+    ],
+    width: TEXT_LENGTH,
+    height: TEXT_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTextRotated: {
+    fontWeight: "bold",
+    textAlign: 'center',
+  },
   noMealsRow: {
     backgroundColor: "red",
   },
