@@ -1,6 +1,6 @@
 import { View, Text, TextInput, StyleSheet, Button, Alert } from "react-native";
 import { set, useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import Container from "../../components/Container/Container";
 import LoginSchema from "../../_helpers/Schemas/LoginSchema";
@@ -21,7 +21,7 @@ export default function Login({ navigation }) {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: joiResolver(LoginSchema),
+    resolver: yupResolver(LoginSchema),
   });
 
   const cFetch = useFetch();

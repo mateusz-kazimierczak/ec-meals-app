@@ -211,11 +211,13 @@ const styles = StyleSheet.create({
     margin: 6,
     padding: 5,
     fontWeight: "bold",
-    transform: screeenWidth < 500 && [
-      { rotate: "-90deg" },
-      { translateX: 0 },
-      { translateY: -OFFSET },
-    ],
+    ...(screeenWidth < 500 && {
+      transform: [
+        { rotate: "-90deg" },
+        { translateX: 0 },
+        { translateY: -OFFSET },
+      ],
+    }),
     width: TEXT_LENGTH,
     height: TEXT_HEIGHT,
   },

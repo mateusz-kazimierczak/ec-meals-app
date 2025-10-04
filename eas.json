@@ -1,11 +1,29 @@
 {
   "build": {
-    "preview": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "ios": {
+        "resourceClass": "m1-medium"
+      },
       "android": {
-        "buildType": "apk",
-        "env": {
-          "NODE_ENV": "prod"
-        }
+        "buildType": "apk"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+          "NODE_ENV": "production"
+        },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "image": "latest",
+        "resourceClass": "m1-medium"
       }
     },
     "preview2": {
@@ -19,6 +37,10 @@
     "preview4": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
   }
 }

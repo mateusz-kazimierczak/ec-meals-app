@@ -23,7 +23,7 @@ import { useAtom } from "jotai";
 import { authAtom } from "../../../_helpers/Atoms";
 
 import { set, useForm } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import ModifySchema from "../../../_helpers/Schemas/ModifySchema";
 import AddSchema from "../../../_helpers/Schemas/AddSchema";
@@ -83,7 +83,7 @@ export default function ModifyUser({ navigation, route }) {
     formState: { errors },
     watch,
   } = useForm({
-    resolver: joiResolver(
+    resolver: yupResolver(
       route.params?.user_id || route.params?.token ? ModifySchema : AddSchema
     ),
   });
