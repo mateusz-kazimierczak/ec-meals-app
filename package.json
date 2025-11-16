@@ -7,7 +7,7 @@
     "start_prod": "NODE_ENV=production npx expo start",
     "build": "NODE_ENV=prod npx expo export -p web --clear",
     "publish": "sudo netlify deploy --dir dist --prod",
-    "test": "ssdo netlify deploy --dir dist",
+    "test": "sudo netlify deploy --dir dist",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
