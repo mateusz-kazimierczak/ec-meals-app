@@ -28,7 +28,7 @@ export default function CTextInput({
         )}
         name={name}
       />
-      {errors[name] && <Text>{errors[name].message}</Text>}
+      {errors[name] && <Text style={styles.errorText}>{errors[name].message}</Text>}
     </View>
   );
 }
@@ -45,5 +45,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontSize: 20,
     padding: 10,
+  },
+  errorText: {
+    color: 'red',
+    marginLeft: 10,
+    marginTop: -5,
+    fontSize: 14,
   },
 });

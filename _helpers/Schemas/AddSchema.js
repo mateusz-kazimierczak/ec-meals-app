@@ -11,9 +11,12 @@ export default Yup.object({
     }),
   birthday: Yup.string()
     .trim()
-    .matches(/^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])$/, "Birthday must be in DD/MM format")
     .nullable()
-    .notRequired(),
+    .notRequired()
+    .test('birthday-format', 'Birthday must be in DD/MM format', function(value) {
+      if (!value || value === '') return true; // Allow empty/null values
+      return /^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])$/.test(value);
+    }),
   password: Yup.string().trim().required("Password is required"),
   firstName: Yup.string().required("First name is required"),
   lastName: Yup.string().nullable().notRequired(),
@@ -26,5 +29,5 @@ export default Yup.object({
   active: Yup.boolean().required("Active status is required"),
   room: Yup.number().nullable().notRequired(),
   guest: Yup.boolean(),
-  diet: Yup.mixed(),
+  diet: Yup.mixed().nullable(),
 });
