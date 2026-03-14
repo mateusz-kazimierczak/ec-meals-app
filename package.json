@@ -69,6 +69,7 @@
     "stream-browserify": "^3.0.0",
     "text-encoding-polyfill": "^0.6.7",
     "toastify-react-native": "^4.0.0",
+    "cronstrue": "^2.53.0",
     "typescript": "~5.9.2",
     "vercel": "^32.3.0",
     "yup": "^1.7.1"

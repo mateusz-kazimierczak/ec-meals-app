@@ -10,6 +10,7 @@ import {
 import DeepNavLink from "../../../components/header/DeepNavLinks/DeepNavLinks";
 import Container from "../../../components/Container/Container";
 import { useState, useEffect } from "react";
+import cronstrue from "cronstrue";
 import { useFetch } from "../../../_helpers/useFetch";
 import platformAlert from "../../../_helpers/useAlert";
 
@@ -46,6 +47,21 @@ export default function Settings({ navigation, route }) {
     setCrons([...crons, ""]);
   };
 
+  const getCronDescription = (cron) => {
+    const trimmed = cron.trim();
+    if (!trimmed) {
+      return "Enter a cron expression to see a description";
+    }
+    try {
+      return cronstrue.toString(trimmed, {
+        throwExceptionOnParseError: true,
+        use24HourTimeFormat: true,
+      });
+    } catch (err) {
+      return "Invalid cron expression";
+    }
+  };
+
   const saveSettings = async () => {
     const trimmed = crons.map((c) => c.trim()).filter(Boolean);
     if (trimmed.length === 0) {
@@ -73,14 +89,17 @@ export default function Settings({ navigation, route }) {
 
   const renderItem = ({ item, index }) => (
     <View style={styles.cronRow}>
-      <TextInput
-        style={styles.cronInput}
-        value={item}
-        onChangeText={(val) => updateCron(index, val)}
-        placeholder="e.g. 30 8 * * 1-5"
-        placeholderTextColor="#999"
-        autoCapitalize="none"
-      />
+      <View style={styles.cronInputWrapper}>
+        <TextInput
+          style={styles.cronInput}
+          value={item}
+          onChangeText={(val) => updateCron(index, val)}
+          placeholder="e.g. 30 8 * * 1-5"
+          placeholderTextColor="#999"
+          autoCapitalize="none"
+        />
+        <Text style={styles.cronDescription}>{getCronDescription(item)}</Text>
+      </View>
       <TouchableOpacity style={styles.removeBtn} onPress={() => removeCron(index)}>
         <Text style={styles.removeBtnText}>Remove</Text>
       </TouchableOpacity>
@@ -160,12 +179,14 @@ const styles = StyleSheet.create({
   },
   cronRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 10,
     gap: 8,
   },
-  cronInput: {
+  cronInputWrapper: {
     flex: 1,
+  },
+  cronInput: {
     height: 44,
     borderWidth: 1,
     borderColor: "#ced4da",
@@ -175,11 +196,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     color: "#495057",
   },
+  cronDescription: {
+    marginTop: 6,
+    fontSize: 12,
+    color: "#6c757d",
+  },
   removeBtn: {
     paddingHorizontal: 12,
     paddingVertical: 10,
     backgroundColor: "#dc3545",
     borderRadius: 8,
+    marginTop: 4,
   },
   removeBtnText: {
     color: "#fff",
