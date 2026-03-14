@@ -6,6 +6,7 @@ import Meals from "./Meals/Meals";
 import IdMeals from "../Meals/Meals";
 import Diets from "./Diets/Diets";
 import Logs from "./Logs/Logs";
+import Settings from "./Settings/Settings";
 import NotificationPreferences from "../Pref/NotificationPreference";
 import GeneralPreferences from "../Pref/GeneralPreferences";
 
@@ -25,6 +26,7 @@ export default function AdminRouter({ navigation }) {
       <Stack.Screen name="AllMeals" component={Meals} />
       <Stack.Screen name="IdMeals" component={IdMeals} />
       <Stack.Screen name="Diets" component={Diets} />
+      <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="Logs" component={Logs} returnPaths={["Preferences"]} />
       <Stack.Screen
         name="Admin Notification Preferences"

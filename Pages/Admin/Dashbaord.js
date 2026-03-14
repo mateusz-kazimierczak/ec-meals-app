@@ -33,6 +33,11 @@ export default function Dashbaord({ navigation }) {
           returnPaths: ["Dashboard"],
         }),
     },
+    {
+      name: "Settings",
+      icon: "settings-outline",
+      action: () => navigation.navigate("Settings"),
+    },
   ];
 
   return (
