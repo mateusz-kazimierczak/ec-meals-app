@@ -40,6 +40,15 @@ npm run android     # Android emulator
 npm run ios         # iOS simulator
 ```
 
+## UI Inspection Workflow
+- For web UI iteration, prefer running the app with `npm run web` and attaching to Google Chrome via the Chrome DevTools Protocol instead of relying only on static code inspection.
+- Launch Chrome with remote debugging enabled, for example: `'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --remote-debugging-port=9222 --user-data-dir=/tmp/codex-chrome-debug http://localhost:8081`
+- Inspect the active tab through DevTools endpoints like `http://127.0.0.1:9222/json/list`, then connect to the page's `webSocketDebuggerUrl` to pull DOM text/HTML, trigger clicks, and capture screenshots with `Page.captureScreenshot`.
+- This workflow works well for screenshot-based validation of tab navigation, layout, and rendered text in the Expo web app.
+- If login or authenticated UI is needed, make sure the backend is running locally with `npm run dev` in `ec-meals-backend/`, because `.env.test` points the frontend at `http://localhost:3000`.
+- The admin credentials `admin` / `admin` are accepted by the local backend auth endpoint.
+- On web, auth is backed by browser storage rather than mobile AsyncStorage. If browser automation has trouble submitting the React Native Web login form, it is acceptable to verify the credentials against `/api/auth`, seed the returned auth payload into browser storage under `auth`, reload, and continue UI inspection from the authenticated state.
+
 ## Building & Deploying
 ```bash
 npm run build       # Build web (dist/)
