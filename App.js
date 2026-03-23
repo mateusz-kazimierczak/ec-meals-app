@@ -2,18 +2,16 @@
 import './polyfills';
 import "react-native-gesture-handler";
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
 import HeaderLogo from "./components/header/header";
-import DeskNav from "./components/header/HeaderNav/Desk/deskNav";
 
 import HomeNoAuth from "./Pages/Home/HomeNoAuth";
 import HomeUser from "./Pages/Home/HomeUser";
@@ -27,60 +25,85 @@ import { authAtom } from "./_helpers/Atoms";
 
 import Icons from "@expo/vector-icons/Ionicons";
 import ToastManager from "toastify-react-native";
+import OfflineGate from "./components/OfflineGate";
+import { ConnectivityProvider, useConnectivity } from "./_helpers/connectivity";
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <Suspense fallback={<Text>Loading...</Text>} >
-        <AppEntry />
-      </Suspense>
+      <ConnectivityProvider>
+        <Suspense fallback={<Text>Loading...</Text>} >
+          <AppEntry />
+        </Suspense>
+      </ConnectivityProvider>
     </SafeAreaProvider>
   );
 }
 
 function AppEntry () {
-  const [auth, setAuth] = useAtom(authAtom);
+  const [auth] = useAtom(authAtom);
+  const { isConnected, isConnectionKnown, refreshConnection } = useConnectivity();
+  const [isRefreshingConnection, setIsRefreshingConnection] = useState(false);
+
+  const handleRetryConnection = async () => {
+    setIsRefreshingConnection(true);
+    await refreshConnection();
+    setIsRefreshingConnection(false);
+  };
+
+  if (!isConnectionKnown || !isConnected) {
+    return (
+      <View style={styles.container}>
+        <ToastManager />
+        <OfflineGate
+          isConnectionKnown={isConnectionKnown}
+          isRefreshing={isRefreshingConnection}
+          onRetry={handleRetryConnection}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-          <ToastManager />
-          <NavigationContainer>
-            <Tab.Navigator
-              screenOptions={({ route }) => ({
-                cardStyle: { flex: 1 },
-                tabBarIcon: ({ focused, color, size }) => {
-                  return (
-                    <Icons
-                      name={iconTitle(route.name)}
-                      size={size}
-                      color={color}
-                    />
-                  );
-                },
-                // Add proper safe area handling
-                tabBarStyle: {
-                  paddingBottom: 0, // Remove extra padding
-                  backgroundColor: '#fff',
-                },
-                headerStyle: {
-                  backgroundColor: '#fff', // White header background to match tabs
-                },
-                headerTintColor: '#3b78a1', // Blue text on white background
+      <ToastManager />
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            cardStyle: { flex: 1 },
+            tabBarIcon: ({ color, size }) => {
+              return (
+                <Icons
+                  name={iconTitle(route.name)}
+                  size={size}
+                  color={color}
+                />
+              );
+            },
+            tabBarStyle: {
+              paddingBottom: 0,
+              backgroundColor: '#fff',
+            },
+            headerStyle: {
+              backgroundColor: '#fff',
+            },
+            headerTintColor: '#3b78a1',
+          })}
+        >
+          {navTabs(auth?.role).map((tab) => (
+            <Tab.Screen
+              name={tab.name}
+              key={tab.name}
+              component={tab.component}
+              options={() => ({
+                headerRight: () => <HeaderLogo />,
+                headerTitleAlign: "left",
               })}
-            >
-            {navTabs(auth?.role).map((tab) => (
-              <Tab.Screen
-                name={tab.name}
-                key={tab.name}
-                component={tab.component}
-                options={({ route, navigation }) => ({
-                  headerRight: () => <HeaderLogo />,
-                  headerTitleAlign: "left",
-                })}
-              />
-            ))}
-          </Tab.Navigator>
-        </NavigationContainer>
-      </View>
+            />
+          ))}
+        </Tab.Navigator>
+      </NavigationContainer>
+    </View>
   )
 }
 

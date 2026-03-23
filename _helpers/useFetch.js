@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { authAtom } from "./Atoms";
-import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { createOfflineError } from "./connectivity";
 
 export { useFetch };
 
@@ -35,7 +35,10 @@ function useFetch() {
         requestOptions.headers["Content-Type"] = "application/json";
         requestOptions.body = JSON.stringify(body);
       }
-      return fetch(url, requestOptions).then(handleResponse);
+
+      return fetch(url, requestOptions)
+        .catch(() => Promise.reject(createOfflineError()))
+        .then(handleResponse);
     };
   }
 
@@ -64,7 +67,7 @@ function useFetch() {
       return data;
     } catch (err) {
       console.log("Error while handling response: ", err);
-      logOut();
+      return Promise.reject(err);
     }
   }
 
