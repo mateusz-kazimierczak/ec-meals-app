@@ -3,7 +3,7 @@ export default {
     "name": "EC Meals",
     "slug": "ec",
     "scheme": "ec",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

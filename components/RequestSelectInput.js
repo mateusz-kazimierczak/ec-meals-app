@@ -18,16 +18,13 @@ export default function CTextInput({
   const [options, setOptions] = useState([defaultValue]);
 
   useEffect(() => {
-    console.log("useEffect called");
     getOptions();
   }, []);
 
   const getOptions = async () => {
     const res = await cFetch.get(requestURL);
     if (res.message == "OK") {
-      dietItems = res.data.map((item) => {
-        return item.name;
-      });
+      const dietItems = res.data.map((item) => item.name);
       setOptions([defaultValue, ...dietItems]);
     }
   };

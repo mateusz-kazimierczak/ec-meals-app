@@ -60,7 +60,6 @@ const AddGuests = ({ date, fetch }) => {
         onPress={() => {
           const newState = !open;
           setOpen(newState);
-          if (newState) fetchUsers();
         }}
       >
         <Text style={styles.mealCatHeader}>Add Guests</Text>
