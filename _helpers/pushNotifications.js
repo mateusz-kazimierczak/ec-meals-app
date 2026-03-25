@@ -76,7 +76,11 @@ export async function sendTestNotification() {
         data: { test: true },
         sound: 'bell.wav',
       },
-      trigger: { seconds: 1 }, // Send after 1 second
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+        repeats: false,
+      },
     });
 
     return true;

@@ -3,9 +3,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": {
-        "NODE_ENV": "production"
-      },
+      "environment": "production",
       "ios": {
         "resourceClass": "m1-medium"
       },
@@ -15,9 +13,7 @@
     },
     "preview": {
       "distribution": "internal",
-      "env": {
-          "NODE_ENV": "production"
-        },
+      "environment": "production",
       "android": {
         "buildType": "apk"
       },
@@ -38,9 +34,7 @@
       "distribution": "internal"
     },
     "production": {
-      "env": {
-        "NODE_ENV": "production"
-      }
+      "environment": "production"
     }
   }
 }

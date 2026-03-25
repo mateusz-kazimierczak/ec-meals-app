@@ -1,6 +1,6 @@
 {
   "name": "ec",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=test npx expo start",
@@ -13,7 +13,7 @@
     "web": "expo start --web",
     "deploy": "gh-pages -t -d dist",
     "predeploy": "expo export -p web",
-    "ios_deploy": "eas build --platform ios --auto-submit"
+    "ios_deploy": "npx eas-cli@latest build --platform ios --auto-submit"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

@@ -3,7 +3,7 @@ export default {
     "name": "EC Meals",
     "slug": "ec",
     "scheme": "ec",
-    "version": "1.2.1",
+    "version": "1.2.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,6 +16,7 @@ export default {
       "**/*"
     ],
     "ios": {
+      "buildNumber": "3",
       "supportsTablet": false,
       "bundleIdentifier": "com.anonymous.ec",
       "infoPlist": {
