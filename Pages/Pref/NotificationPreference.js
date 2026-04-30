@@ -4,7 +4,6 @@ import Container from "../../components/Container/Container";
 import Loader from "../../components/Loader/Loader";
 import { useEffect, useState } from "react";
 import { useFetch } from "../../_helpers/useFetch";
-import { DaysOfTheWeek, screeenWidth } from "../../Pages/Meals/common";
 
 import { useAtom } from "jotai";
 import { authAtom } from "../../_helpers/Atoms";
@@ -15,73 +14,27 @@ import GroupCheckboxTable from "../../components/Forms/GroupCheckboxTable"; // I
 import platformAlert from "../../_helpers/useAlert";
 
 import MobileNotificationRegister from "./MobileNotifications/MobileNotificationDevice";
-
-const generateNotificationSchema = (userSchema) => ({
-  meals: {
-    title: "Normal Meals",
-    values: userSchema.meals || Array(7).fill(false),
-    group: 1,
-  },
-  packed_meals: {
-    title: "Packed Meals",
-    values: userSchema.packed_meals || Array(7).fill(false),
-    group: 1,
-  },
-  any_meals: {
-    title: "Any Meals",
-    values: userSchema.any_meals || Array(7).fill(false),
-    group: 2,
-  }
-});
-
-const generateReportSchema = (userSchema) => ({
-  full_report: {
-    title: "Full Report",
-    values: userSchema.full_report || Array(7).fill(false),
-    group: 1,
-  },
-  report_on_notifications: {
-    title: "Report on Notifications",
-    values: userSchema.report_on_notifications || Array(7).fill(false),
-    group: 2,
-  }
-});
-
-const generateNotificationSchedule = (userSchedule) => ({
-  morning: {
-    title: "Morning",
-    values: userSchedule.morning || Array(7).fill(false),
-    group: 1,
-  },
-  noon: {
-    title: "Noon",
-    values: userSchedule.noon || Array(7).fill(false),
-    group: 1,
-  },
-  evening: {
-    title: "Evening",
-    values: userSchedule.evening || Array(7).fill(false),
-    group: 1,
-  }
-});
+import {
+  batchNotificationSectionLabels,
+  createBatchSectionsToModify,
+  createInitialNotificationEditorState,
+  defaultNotificationPreferences,
+  serializeNotificationPreferences,
+} from "./notificationPreferencesUtils";
 
 export default function NotificationPreferences({ navigation, route }) {
   const cFetch = useFetch();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
-  const [auth, setAuth] = useAtom(authAtom);
+  const [auth] = useAtom(authAtom);
   const [device, setDevice] = useState(null);
+  const [notificationSchema, setNotificationSchema] = useState(() => createInitialNotificationEditorState().notificationSchema);
+  const [notificationSchedule, setNotificationSchedule] = useState(() => createInitialNotificationEditorState().notificationSchedule);
+  const [reportSchema, setReportSchema] = useState(() => createInitialNotificationEditorState().reportSchema);
+  const [notificationTypes, setNotificationTypes] = useState(() => createInitialNotificationEditorState().notificationTypes);
+  const [batchSectionsToModify, setBatchSectionsToModify] = useState(() => createBatchSectionsToModify());
 
-  const [notificationSchema, setNotificationSchema] = useState(generateNotificationSchema({}));
-  const [notificationSchedule, setNotificationSchedule] = useState(generateNotificationSchedule({}));
-  const [reportSchema, setReportSchema] = useState(generateReportSchema({}));
-
-  const [notificationTypes, setNotificationTypes] = useState({
-    email: false,
-    push: false,
-  });
-
-
+  const isBatchEdit = route.params?.isBatchEdit;
 
   useEffect(() => {
     loadPreferences();
@@ -89,6 +42,20 @@ export default function NotificationPreferences({ navigation, route }) {
 
   const loadPreferences = async () => {
     setLoading(true);
+
+    if (isBatchEdit) {
+      const initialState = createInitialNotificationEditorState(defaultNotificationPreferences);
+      setNotificationSchema(initialState.notificationSchema);
+      setNotificationSchedule(initialState.notificationSchedule);
+      setReportSchema(initialState.reportSchema);
+      setNotificationTypes(initialState.notificationTypes);
+      setDevice(null);
+      setBatchSectionsToModify(createBatchSectionsToModify());
+      setName("");
+      setLoading(false);
+      return;
+    }
+
     const res = await cFetch.get(
       `${process.env.EXPO_PUBLIC_BACKEND_API}/api/preferences/notifications`,
       null,
@@ -97,19 +64,12 @@ export default function NotificationPreferences({ navigation, route }) {
       }
     );
 
-    // Initialize notification schema and schedule with existing preferences
-    setNotificationSchema(generateNotificationSchema(res.notifications.schema || {}));
-
-    setDevice(res.notifications.device || null);
-
-    setNotificationSchedule(generateNotificationSchedule(res.notifications.schedule || {}));
-
-    setReportSchema(generateReportSchema(res.notifications.report || {}));
-
-    setNotificationTypes({
-      email: res.notifications.notificationTypes.email || false,
-      push: res.notifications.notificationTypes.push || false,
-    });
+    const initialState = createInitialNotificationEditorState(res.notifications || defaultNotificationPreferences);
+    setNotificationSchema(initialState.notificationSchema);
+    setNotificationSchedule(initialState.notificationSchedule);
+    setReportSchema(initialState.reportSchema);
+    setNotificationTypes(initialState.notificationTypes);
+    setDevice(res.notifications?.device || null);
 
     setName(res.firstName);
     setLoading(false);
@@ -117,29 +77,41 @@ export default function NotificationPreferences({ navigation, route }) {
 
   const savePreferences = async () => {
     setLoading(true);
-    
-    // Only care about the values, return in form {key: values}
-    const schema = Object.fromEntries(
-      Object.entries(notificationSchema).map(([key, value]) => [key, value.values])
-    );
-    const schedule = Object.fromEntries(
-      Object.entries(notificationSchedule).map(([key, value]) => [key, value.values])
-    );
-    const report = Object.fromEntries(
-      Object.entries(reportSchema).map(([key, value]) => [key, value.values])
-    );
 
-    console.log("Saving preferences:", { schema, schedule, notificationTypes, report });
+    if (isBatchEdit && !Object.values(batchSectionsToModify).some(Boolean)) {
+      setLoading(false);
+      platformAlert("Choose Sections", "Select at least one section to modify before continuing.");
+      return;
+    }
+
+    const notificationPreferences = serializeNotificationPreferences({
+      notificationSchema,
+      notificationSchedule,
+      reportSchema,
+      notificationTypes,
+      device,
+    });
+
+    console.log("Saving preferences:", notificationPreferences);
+
+    if (isBatchEdit) {
+      setLoading(false);
+      navigation.navigate("Batch Notification Review", {
+        notificationPreferences: {
+          ...notificationPreferences,
+          device: null,
+        },
+        selectedUserIds: route.params.selectedUserIds,
+        selectedUserSummaries: route.params.selectedUserSummaries,
+        sectionsToModify: batchSectionsToModify,
+        returnPaths: route.params.returnPaths,
+      });
+      return;
+    }
 
     await cFetch.post(
       `${process.env.EXPO_PUBLIC_BACKEND_API}/api/preferences/notifications`,
-      {
-        schema,
-        schedule,
-        notificationTypes,
-        report,
-        device,
-      },
+      notificationPreferences,
       {
         user_id: route.params.forUser,
       }
@@ -154,59 +126,162 @@ export default function NotificationPreferences({ navigation, route }) {
       <DeepNavLink routes={route.params.returnPaths} navigation={navigation} />
       <Container>
         <Loader loading={loading}>
-          {route.params.forUser && !loading && (
+          {isBatchEdit && !loading && (
+            <Text style={{ fontSize: 24, color: "#3b78a1", textAlign: "center" }}>
+              Batch Notification Preferences For {route.params.selectedUserIds.length} Users
+            </Text>
+          )}
+          {route.params.forUser && !loading && !isBatchEdit && (
             <Text style={{ fontSize: 30, color: "#3b78a1" }}>
               {name}'s Notification Preferences
             </Text>
           )}
           <Text style={styles.pageHeader}>Notification Preferences</Text>
           <View style={styles.tableContainer}>
+            {isBatchEdit && (
+              <View style={styles.batchInfoCard}>
+                <Text style={styles.batchInfoTitle}>Choose Which Sections To Modify</Text>
+                <Text style={styles.batchInfoText}>
+                  Only the sections enabled below will be applied to the selected users. Disabled sections will be left unchanged.
+                </Text>
+              </View>
+            )}
 
             <Text style={styles.pageHeader}>Notification Types</Text>
+            <Text style={styles.sectionDescription}>
+              Choose how notifications are delivered. Email sends reminders to the user&apos;s email address, while push notifications send alerts to a registered mobile device.
+            </Text>
 
-            <View>
+            {isBatchEdit && (
               <Checkbox
-                label={"Email"}
-                value={notificationTypes.email}
-                setValue={(value) => setNotificationTypes({ ...notificationTypes, email: value })}
-              />  
-            </View>
+                label={`Modify ${batchNotificationSectionLabels.notificationTypes}`}
+                value={batchSectionsToModify.notificationTypes}
+                setValue={(value) =>
+                  setBatchSectionsToModify({
+                    ...batchSectionsToModify,
+                    notificationTypes: value,
+                  })
+                }
+              />
+            )}
 
-            <View>
-              <Checkbox
-                label={"Push Notifications (Mobile)"}
-                value={notificationTypes.push}
-                setValue={(value) => setNotificationTypes({ ...notificationTypes, push: value })}
-              />  
-            </View>
+            {(!isBatchEdit || batchSectionsToModify.notificationTypes) ? (
+              <>
+                <View>
+                  <Checkbox
+                    label={"Email"}
+                    value={notificationTypes.email}
+                    setValue={(value) => setNotificationTypes({ ...notificationTypes, email: value })}
+                  />
+                  <Text style={styles.optionDescription}>
+                    Receive meal reminders and report emails in the user&apos;s inbox.
+                  </Text>
+                </View>
+
+                <View>
+                  <Checkbox
+                    label={"Push Notifications (Mobile)"}
+                    value={notificationTypes.push}
+                    setValue={(value) => setNotificationTypes({ ...notificationTypes, push: value })}
+                  />
+                  <Text style={styles.optionDescription}>
+                    Send quick alerts to the user&apos;s registered phone. This requires a device to be registered first.
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <Text style={styles.disabledSectionText}>
+                This section will not be modified for the selected users.
+              </Text>
+            )}
 
             {
-              notificationTypes.push &&
+              notificationTypes.push && !isBatchEdit &&
               <MobileNotificationRegister device={device} setDevice={setDevice} />
             }
 
 
             <Text style={styles.pageHeader}>Reminder Notifications Schema</Text>
+            <Text style={styles.sectionDescription}>
+              Decide which kinds of missing-meal reminders the user should receive on each day of the week.
+            </Text>
 
-            <GroupCheckboxTable
-              data={notificationSchema}
-              setData={(newData) => setNotificationSchema(newData)} />
+            {isBatchEdit && (
+              <Checkbox
+                label={`Modify ${batchNotificationSectionLabels.schema}`}
+                value={batchSectionsToModify.schema}
+                setValue={(value) =>
+                  setBatchSectionsToModify({
+                    ...batchSectionsToModify,
+                    schema: value,
+                  })
+                }
+              />
+            )}
+
+            {(!isBatchEdit || batchSectionsToModify.schema) && (
+              <GroupCheckboxTable
+                data={notificationSchema}
+                setData={(newData) => setNotificationSchema(newData)}
+              />
+            )}
 
             <Text style={styles.pageHeader}>Report Schema</Text>
+            <Text style={styles.sectionDescription}>
+              Control when the user receives a summary of their meals. Full Report always sends a summary for that day, while Report on Notifications only sends a summary when a reminder is triggered.
+            </Text>
 
-            <GroupCheckboxTable
-              data={reportSchema}
-              setData={(newData) => setReportSchema(newData)} />
+            {isBatchEdit && (
+              <Checkbox
+                label={`Modify ${batchNotificationSectionLabels.report}`}
+                value={batchSectionsToModify.report}
+                setValue={(value) =>
+                  setBatchSectionsToModify({
+                    ...batchSectionsToModify,
+                    report: value,
+                  })
+                }
+              />
+            )}
+
+            {(!isBatchEdit || batchSectionsToModify.report) && (
+              <GroupCheckboxTable
+                data={reportSchema}
+                setData={(newData) => setReportSchema(newData)}
+              />
+            )}
 
             <Text style={styles.pageHeader}>Notification Schedule</Text>
+            <Text style={styles.sectionDescription}>
+              Choose when the system checks and sends notifications. Morning is for today&apos;s meals, noon is for tomorrow&apos;s meals, and evening is for upcoming packed meals.
+            </Text>
 
-            <GroupCheckboxTable
-              data={notificationSchedule}
-              setData={(newData) => setNotificationSchedule(newData)} />
+            {isBatchEdit && (
+              <Checkbox
+                label={`Modify ${batchNotificationSectionLabels.schedule}`}
+                value={batchSectionsToModify.schedule}
+                setValue={(value) =>
+                  setBatchSectionsToModify({
+                    ...batchSectionsToModify,
+                    schedule: value,
+                  })
+                }
+              />
+            )}
+
+            {(!isBatchEdit || batchSectionsToModify.schedule) && (
+              <GroupCheckboxTable
+                data={notificationSchedule}
+                setData={(newData) => setNotificationSchedule(newData)}
+              />
+            )}
             
           </View>
           <View>
-            <Button title="Save" onPress={savePreferences} />
+            <Button
+              title={isBatchEdit ? "Review Changes" : "Save"}
+              onPress={savePreferences}
+            />
           </View>
         </Loader>
       </Container>
@@ -222,8 +297,43 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: "#3b78a1",
   },
+  sectionDescription: {
+    color: "#55616d",
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 14,
+    paddingHorizontal: 8,
+  },
+  optionDescription: {
+    color: "#66727e",
+    marginTop: -2,
+    marginBottom: 8,
+    marginLeft: 48,
+    lineHeight: 18,
+  },
   tableContainer: {
     marginVertical: 20,
+  },
+  batchInfoCard: {
+    backgroundColor: "#eef6fb",
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 20,
+  },
+  batchInfoTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#3b78a1",
+    marginBottom: 6,
+  },
+  batchInfoText: {
+    color: "#4b5b68",
+    lineHeight: 20,
+  },
+  disabledSectionText: {
+    color: "#6c757d",
+    marginBottom: 16,
+    textAlign: "center",
   },
   head: {
     height: 40,

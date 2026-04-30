@@ -2,8 +2,6 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { Platform } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 
-const WEB_CONNECTIVITY_CHECK_INTERVAL_MS = 10000;
-
 const ConnectivityContext = createContext({
   isConnected: true,
   isConnectionKnown: false,
@@ -30,68 +28,24 @@ function readBrowserConnection() {
   return navigator.onLine;
 }
 
-async function probeBackendConnection() {
-  const backendUrl = process.env.EXPO_PUBLIC_BACKEND_API;
-
-  if (!backendUrl) {
-    return readBrowserConnection();
-  }
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
-
-  try {
-    await fetch(`${backendUrl}?connectionCheck=${Date.now()}`, {
-      method: "GET",
-      mode: "no-cors",
-      cache: "no-store",
-      signal: controller.signal,
-    });
-
-    return true;
-  } catch (error) {
-    return false;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 export function ConnectivityProvider({ children }) {
   const [isConnected, setIsConnected] = useState(Platform.OS === "web" ? readBrowserConnection() : true);
   const [isConnectionKnown, setIsConnectionKnown] = useState(Platform.OS === "web");
 
   useEffect(() => {
     if (Platform.OS === "web") {
-      let mounted = true;
-
-      const syncBrowserConnection = async () => {
-        const browserOnline = readBrowserConnection();
-
-        if (!browserOnline) {
-          if (!mounted) return;
-          setIsConnected(false);
-          setIsConnectionKnown(true);
-          return;
-        }
-
-        const backendReachable = await probeBackendConnection();
-
-        if (!mounted) return;
-
-        setIsConnected(backendReachable);
+      const syncBrowserConnection = () => {
+        setIsConnected(readBrowserConnection());
         setIsConnectionKnown(true);
       };
 
       syncBrowserConnection();
       window.addEventListener("online", syncBrowserConnection);
       window.addEventListener("offline", syncBrowserConnection);
-      const interval = window.setInterval(syncBrowserConnection, WEB_CONNECTIVITY_CHECK_INTERVAL_MS);
 
       return () => {
-        mounted = false;
         window.removeEventListener("online", syncBrowserConnection);
         window.removeEventListener("offline", syncBrowserConnection);
-        window.clearInterval(interval);
       };
     }
 
@@ -121,8 +75,7 @@ export function ConnectivityProvider({ children }) {
 
   const refreshConnection = useCallback(async () => {
     if (Platform.OS === "web") {
-      const browserOnline = readBrowserConnection();
-      const currentConnection = browserOnline ? await probeBackendConnection() : false;
+      const currentConnection = readBrowserConnection();
       setIsConnected(currentConnection);
       setIsConnectionKnown(true);
       return currentConnection;
