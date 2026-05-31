@@ -17,6 +17,7 @@ import HomeNoAuth from "./Pages/Home/HomeNoAuth";
 import HomeUser from "./Pages/Home/HomeUser";
 import Login from "./Pages/Auth/LogIn";
 import Admin from "./Pages/Admin/AdminRouter";
+import ActivitiesRouter from "./Pages/Admin/Activities/ActivitiesRouter";
 import PreferencesRouter from "./Pages/Pref/PreferencesRouter";
 import Meals from "./Pages/Meals/Meals";
 
@@ -131,6 +132,13 @@ const navTabs = (role) => {
         { name: "Admin", component: Admin },
         { name: "Preferences", component: PreferencesRouter },
       ];
+    case "activity_editor":
+      return [
+        { name: "Home", component: HomeUser },
+        { name: "Meals", component: Meals },
+        { name: "Activities", component: ActivitiesRouter },
+        { name: "Preferences", component: PreferencesRouter },
+      ];
     default:
       return [
         { name: "Home", component: HomeNoAuth },
@@ -151,6 +159,8 @@ const iconTitle = (name) => {
       return "apps-outline";
     case "Meals":
       return "pizza-outline";
+    case "Activities":
+      return "mail-outline";
     default:
       return "Home";
   }

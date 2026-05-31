@@ -9,6 +9,7 @@ import Logs from "./Logs/Logs";
 import Settings from "./Settings/Settings";
 import NotificationPreferences from "../Pref/NotificationPreference";
 import GeneralPreferences from "../Pref/GeneralPreferences";
+import ActivitiesRouter from "./Activities/ActivitiesRouter";
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,7 @@ export default function AdminRouter({ navigation }) {
         name="Admin General Preferences"
         component={GeneralPreferences}
       />
+      <Stack.Screen name="Activities" component={ActivitiesRouter} />
     </Stack.Navigator>
   );
 }

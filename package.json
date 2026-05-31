@@ -13,7 +13,8 @@
     "web": "expo start --web",
     "deploy": "gh-pages -t -d dist",
     "predeploy": "expo export -p web",
-    "ios_deploy": "npx eas-cli@latest build --platform ios --auto-submit"
+    "ios_deploy": "npx eas-cli@latest build --platform ios --auto-submit",
+    "android_deploy": "npx eas-cli@latest build --platform android"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -29,6 +30,11 @@
     "@react-navigation/material-top-tabs": "^7.3.7",
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/stack": "^7.4.8",
+    "@tiptap/extension-image": "^3.24.0",
+    "@tiptap/extension-link": "^3.24.0",
+    "@tiptap/pm": "^3.24.0",
+    "@tiptap/react": "^3.24.0",
+    "@tiptap/starter-kit": "^3.24.0",
     "@types/react": "~19.1.10",
     "buffer": "^6.0.3",
     "cronstrue": "^2.53.0",

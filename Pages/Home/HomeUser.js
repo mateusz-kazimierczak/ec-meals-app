@@ -12,6 +12,7 @@ import {
 import HomeMeals from "./HomeWidgets/HomeMeals";
 import HomeBirthdays from "./HomeWidgets/Birthdays/HomeBirthdays";
 import HomeCurrentMeal from "./Admin/HomeCurrentMeal";
+import HomeActivity from "./HomeWidgets/HomeActivity";
 
 import Container from "../../components/Container/Container";
 
@@ -93,16 +94,16 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <ScrollView>
-    {auth.role == "admin" && <HomeCurrentMeal navigation={navigation} route={route} />}
-    <Container>
-      <Text style={styles.headTitle}>Welcome to Ernescliff!</Text>
-      <HomeMeals navigation={navigation} route={route} />
-    </Container>
-    <Container>
-      <HomeBirthdays />
-    </Container>
-    
-  </ScrollView>
+      {auth.role == "admin" && <HomeCurrentMeal navigation={navigation} route={route} />}
+      <HomeActivity />
+      <Container>
+        <Text style={styles.headTitle}>Welcome to Ernescliff!</Text>
+        <HomeMeals navigation={navigation} route={route} />
+      </Container>
+      <Container>
+        <HomeBirthdays />
+      </Container>
+    </ScrollView>
   );
 }
 

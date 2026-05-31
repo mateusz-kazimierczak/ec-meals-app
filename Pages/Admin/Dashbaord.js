@@ -38,6 +38,11 @@ export default function Dashbaord({ navigation }) {
       icon: "settings-outline",
       action: () => navigation.navigate("Settings"),
     },
+    {
+      name: "Activities",
+      icon: "mail-outline",
+      action: () => navigation.navigate("Activities"),
+    },
   ];
 
   return (

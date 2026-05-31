@@ -278,6 +278,7 @@ export default function ModifyUser({ navigation, route }) {
                     { label: "Student", value: "student" },
                     { label: "Admin", value: "admin" },
                     { label: "Numerary", value: "numerary" },
+                    { label: "Activity Editor", value: "activity_editor" },
                   ]}
                 />
 
