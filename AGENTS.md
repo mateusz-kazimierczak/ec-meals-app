@@ -25,7 +25,7 @@ React Native + Expo mobile/web app for meal management at Ernescliff (EC). Suppo
 ## Environment Variables
 | Variable | Purpose | Example |
 |---|---|---|
-| `EXPO_PUBLIC_BACKEND_API` | Backend URL | `https://ec-meals-backend.vercel.app` |
+| `EXPO_PUBLIC_BACKEND_API` | Backend URL | `https://ec-debian-server.tail8c1956.ts.net/ec-meals-api` |
 | `EXPO_PUBLIC_BEFORE_WAIT_FOR_NEXT_CYCLE` | Timer config (seconds) | `10` |
 | `EXPO_PUBLIC_AFTER_WAIT_FOR_NEXT_CYCLE` | Timer config (seconds) | `10` |
 
@@ -45,7 +45,7 @@ npm run ios         # iOS simulator
 - Launch Chrome with remote debugging enabled, for example: `'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --remote-debugging-port=9222 --user-data-dir=/tmp/codex-chrome-debug http://localhost:8081`
 - Inspect the active tab through DevTools endpoints like `http://127.0.0.1:9222/json/list`, then connect to the page's `webSocketDebuggerUrl` to pull DOM text/HTML, trigger clicks, and capture screenshots with `Page.captureScreenshot`.
 - This workflow works well for screenshot-based validation of tab navigation, layout, and rendered text in the Expo web app.
-- If login or authenticated UI is needed, make sure the backend is running locally with `npm run dev` in `ec-meals-backend/`, because `.env.test` points the frontend at `http://localhost:3000`.
+- If login or authenticated UI is needed, make sure the Fastify backend is running locally with `npm run dev` in `ec-meals-backend/`, because `.env.test` points the frontend at `http://localhost:3000`.
 - The admin credentials `admin` / `admin` are accepted by the local backend auth endpoint.
 - On web, auth is backed by browser storage rather than mobile AsyncStorage. If browser automation has trouble submitting the React Native Web login form, it is acceptable to verify the credentials against `/api/auth`, seed the returned auth payload into browser storage under `auth`, reload, and continue UI inspection from the authenticated state.
 
